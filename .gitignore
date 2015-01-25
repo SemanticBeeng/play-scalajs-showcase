@@ -27,4 +27,6 @@ scalajvm/upload/*
 .cache
 .target
 bin/
+.boot
+.ivy
 

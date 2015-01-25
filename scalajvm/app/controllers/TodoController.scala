@@ -1,16 +1,51 @@
 package controllers
 
 import models.TaskMemStore.InsufficientStorageException
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json._
-import play.api.libs.json.Reads._
-import play.api.libs.functional.syntax._
-import play.api.mvc._
-import scala.concurrent.Future
 import models.TaskModel
-import upickle._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
+import play.api.libs.json._
+import play.api.mvc._
 import shared.Task
+import shared.config.Routes.{TodoException, TodoIntf, TodoSystemException}
+import upickle._
 
+import scala.concurrent.Future
+
+object TodoServer extends TodoIntf {
+
+  def all: Future[List[Task]] = {
+    TaskModel.store.all
+  }
+
+  /**
+   *
+   */
+  def create(txt: String, done: Boolean): Future[Either[Task, TodoException]] = {
+
+    TaskModel.store.create(txt, done).map{ task =>
+      Left(task)
+    }.recover{
+      case e: InsufficientStorageException => return Future(Right(new TodoSystemException(e.getMessage)))
+      case e: Throwable => return Future(Right(new TodoSystemException(e.getMessage)))
+    }
+  }
+
+  /**
+   *
+   */
+  def update(id: Long): Boolean = {
+    true
+  }
+
+  /**
+   *
+   */
+  def delete(id: Long): Boolean = {
+    true
+  }
+}
 object TodoController extends Controller{
 
   implicit val jsonReader = (
@@ -22,8 +57,12 @@ object TodoController extends Controller{
     Ok(views.html.todo("TODO"))
   }
 
+  /**
+   *
+   */
   def all = Action.async{ implicit request =>
-    TaskModel.store.all.map{ r =>
+    // @nick Delegate to implementation of shared API
+    TodoServer.all.map{ r =>
       Ok(write(r))
     }.recover{ case err =>
       InternalServerError(err.getMessage)
@@ -32,12 +71,13 @@ object TodoController extends Controller{
 
   def create = Action.async(parse.json){ implicit request =>
     val fn = (txt: String, done: Boolean) =>
-      TaskModel.store.create(txt, done).map{ r =>
+      TodoServer.create(txt, done).map { r =>
         Ok(write(r))
-      }.recover{
-        case e: InsufficientStorageException => InsufficientStorage(e)
-        case e: Throwable => InternalServerError(e)
       }
+//      }.recover{
+//        case e: InsufficientStorageException => InsufficientStorage(e)
+//        case e: Throwable => InternalServerError(e)
+//      }
     executeRequest(fn)
   }
 

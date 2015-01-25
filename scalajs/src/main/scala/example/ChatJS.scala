@@ -1,7 +1,7 @@
 package example
 
-import config.Routes
 import org.scalajs.dom.extensions.Ajax
+import shared.config.Routes
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExport
 import js.Dynamic.{ global => g }

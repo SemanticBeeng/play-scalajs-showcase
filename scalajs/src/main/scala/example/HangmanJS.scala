@@ -2,7 +2,7 @@ package example
 
 
 import common.Framework._
-import config.Routes
+import shared.config.Routes
 import scalatags.JsDom._
 import all._
 import rx._

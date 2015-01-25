@@ -7,7 +7,7 @@ import scala.concurrent.Future
 trait TodoIntf {
 
   def all: Future[List[Task]]
-  def create(txt: String, done: Boolean) : Future[Either[Task, String]]
+  def create(txt: String, done: Boolean) : Future[Either[Task, TodoBusinessException]]
   def update(id: Long): Boolean
   def delete(id: Long): Boolean
   //def clear = ???
@@ -17,7 +17,7 @@ trait TodoException {
   def message: String
 }
 case class TodoBusinessException(message:String) extends TodoException
-case class TodoSystemException(message:String) extends TodoException
+case class TodoSystemException(message:String) extends RuntimeException with TodoException
 
 object Routes {
 

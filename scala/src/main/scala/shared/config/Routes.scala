@@ -12,7 +12,7 @@ object Routes {
     def create(txt: String, done: Boolean) : Future[Either[Task, TodoException]]
     def update(id: Long): Boolean
     def delete(id: Long): Boolean
-    //def clear = base + "/clear"
+    //def clear = ???
 
   }
   trait TodoException {

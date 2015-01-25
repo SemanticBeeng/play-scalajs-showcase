@@ -7,7 +7,7 @@ import scala.concurrent.Future
 trait TodoIntf {
 
   def all: Future[List[Task]]
-  def create(txt: String, done: Boolean) : Future[Either[Task, TodoException]]
+  def create(txt: String, done: Boolean) : Future[Either[Task, String]]
   def update(id: Long): Boolean
   def delete(id: Long): Boolean
   //def clear = ???

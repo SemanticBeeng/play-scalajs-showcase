@@ -21,17 +21,28 @@ object ApplicationBuild extends Build with UniversalKeys {
   lazy val scalajvm = Project(
     id = "scalajvm",
     base = file("scalajvm")
-  ) enablePlugins (play.PlayScala) settings (scalajvmSettings: _*) aggregate (scalajs) aggregate (sharedScala)
+
+  ).enablePlugins(play.PlayScala) 
+  .settings(scalajvmSettings: _*) 
+  .aggregate(scalajs) 
+  .aggregate (sharedScala)
 
   lazy val scalajs = Project(
     id   = "scalajs",
     base = file("scalajs")
-  ) settings (scalajsSettings: _*) aggregate (sharedScala)
+
+  ).settings (scalajsSettings: _*) 
+  .aggregate (sharedScala)
 
   lazy val sharedScala = Project(
     id = "scala",
     base = file(sharedSrcDir)
-  ) settings (sharedScalaSettings: _*) 
+
+  )
+  .settings(sharedScalaSettings: _*) 
+  .settings(
+    testFrameworks += new TestFramework("utest.runner.Framework")
+  )
 
   lazy val scalajvmSettings =
     Seq(
@@ -41,9 +52,9 @@ object ApplicationBuild extends Build with UniversalKeys {
       scalacOptions ++= Seq("-feature"),
       routesImport += "config.Routes._",
       scalajsOutputDir := (classDirectory in Compile).value / "public" / "javascripts",
-      compile in Compile <<= (compile in Compile) dependsOn (fastOptJS in (scalajs, Compile)) dependsOn copySourceMapsTask,
-      dist <<= dist dependsOn (fullOptJS in (scalajs, Compile)),
-      stage <<= stage dependsOn (fullOptJS in (scalajs, Compile)),
+      compile in Compile <<= (compile in Compile).dependsOn(fastOptJS in (scalajs, Compile)).dependsOn(copySourceMapsTask),
+      dist <<= dist.dependsOn(fullOptJS in (scalajs, Compile)),
+      stage <<= stage.dependsOn(fullOptJS in (scalajs, Compile)),
       libraryDependencies ++= Dependencies.scalajvm.value,
       EclipseKeys.skipParents in ThisBuild := false,
       commands += preStartCommand
@@ -101,7 +112,10 @@ object ApplicationBuild extends Build with UniversalKeys {
 }
 
 object Dependencies {
-  val shared = Def.setting(Seq())
+  val shared = Def.setting(Seq(
+    //"com.lihaoyi" %%% "upickle" % "0.2.4",
+    "com.lihaoyi" %% "utest" % "0.2.5-M3" % "test"
+   ))
 
   val scalajvm = Def.setting(shared.value ++ Seq(
     filters,

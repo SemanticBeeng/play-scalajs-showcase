@@ -52,6 +52,8 @@ package object todo {
       record(TaskCreated(task))
     }
 
+    def countLeftToComplete : Int = tasks.count( t => !t.done)
+
     protected def applyEvent = {
 
       case event: TaskCreated =>

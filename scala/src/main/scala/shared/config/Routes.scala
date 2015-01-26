@@ -19,8 +19,8 @@ trait TodoException {
   override def toString = message
 }
 
-case class TodoBusinessException(message:String) extends TodoException
-case class TodoSystemException(message:String) extends RuntimeException with TodoException {
+case class TodoBusinessException(message:String) extends Exception(message) with TodoException
+case class TodoSystemException(message:String) extends RuntimeException(message) with TodoException {
 
 }
 

@@ -48,7 +48,7 @@ object TodoJS {
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException("Unknown error")
+          case e1 => throw new TodoSystemException(e1.toString)
         }
       }
 
@@ -65,7 +65,7 @@ object TodoJS {
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException("Unknown error")
+          case e1 => throw new TodoSystemException(e1.toString)
         }
       }
 
@@ -79,7 +79,7 @@ object TodoJS {
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException("Unknown error")
+          case e1 => throw new TodoSystemException(e1.toString)
         }
       }
 
@@ -93,7 +93,7 @@ object TodoJS {
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException("Unknown error")
+          case e1 => throw new TodoSystemException(e1.toString)
         }
       }
     }
@@ -161,7 +161,7 @@ object TodoJS {
           tasks() = tasks().updated(pos, task)
 
         //case Success(false) => dom.alert("update failed")
-        case Failure(e) => dom.alert("update failed: " + e.getMessage)
+        case Failure(e) => dom.alert("update failed: " + e.toString)
       }
     }
 

@@ -4,14 +4,13 @@ import common.Framework
 import org.scalajs.dom
 import org.scalajs.dom.extensions.AjaxException
 import shared.config.Routes
-import shared.config.{TodoSystemException, TodoException, TodoBusinessException, TodoIntf}
+import shared.{Task, TodoSystemException, TodoException, TodoBusinessException, TodoIntf}
 import scala.util.{Failure, Success}
 import scalatags.JsDom._
 import all._
 import tags2.section
 import rx._
 import scala.scalajs.js.annotation.JSExport
-import shared._
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.concurrent.Future
 

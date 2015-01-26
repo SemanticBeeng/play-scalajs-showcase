@@ -2,7 +2,9 @@
 
 Evolves the original code to demonstrate the use a of a shared business interface for the Todo application.
 
-The intent is to create a TodoClient and a TodoServer that share the same API, TodoIntf.
+This approach is designed to enable writing of business logic in a way that is transparent to the layer and to execute such business logic on any tier as appropriate. This is necessary because business logic cross cuts the layers : client, server, data access layer, UI, etc
+
+This achieved by creating TodoClient and a TodoServer that share the same API, TodoIntf.
 
 The question is what is the role of Play! controllers in this context
 

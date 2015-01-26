@@ -1,12 +1,14 @@
-package shared
-
 import scala.concurrent.Future
 
 /**
  *
  */
-package object config {
+package object shared {
 
+  /**
+   * Shared business API between "*jvm" and "*js" sub projects.
+   * This approach is designed to enable writing of business logic in a way that is transparent to the layer and to execute such business logic on any tier as appropriate. This is necessary because business logic cross cuts the layers : client, server, data access layer, UI, etc
+   */
   trait TodoIntf {
 
     def all: Future[List[Task]]
@@ -16,6 +18,8 @@ package object config {
     def clearCompletedTasks : Future[Boolean]
 
   }
+
+  case class Task(id: Option[Long], txt: String, done: Boolean)
 
   trait TodoException {
     def message: String

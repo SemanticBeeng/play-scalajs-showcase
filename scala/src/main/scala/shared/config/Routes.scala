@@ -20,9 +20,7 @@ trait TodoException {
 }
 
 case class TodoBusinessException(message:String) extends Exception(message) with TodoException
-case class TodoSystemException(message:String) extends RuntimeException(message) with TodoException {
-
-}
+case class TodoSystemException(message:String) extends RuntimeException(message) with TodoException
 
 object Routes {
 

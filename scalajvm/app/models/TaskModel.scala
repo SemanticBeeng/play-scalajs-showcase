@@ -1,7 +1,7 @@
 package models
 
 import scala.concurrent.Future
-import shared.Task
+import shared.domain.todo.Task
 import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 

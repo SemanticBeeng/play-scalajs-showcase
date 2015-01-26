@@ -7,7 +7,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 import play.api.mvc._
-import shared.{Task, TodoBusinessException, TodoIntf, TodoSystemException}
+import shared.domain.todo.{Task, TodoBusinessException, TodoIntf, TodoSystemException}
 import upickle._
 
 import scala.concurrent.Future

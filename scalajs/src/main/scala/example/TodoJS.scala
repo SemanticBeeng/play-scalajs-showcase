@@ -4,7 +4,7 @@ import common.Framework
 import org.scalajs.dom
 import org.scalajs.dom.extensions.AjaxException
 import shared.config.Routes
-import shared.{Task, TodoSystemException, TodoException, TodoBusinessException, TodoIntf}
+import shared.domain.todo.{Task, TodoSystemException, TodoBusinessException, TodoIntf}
 import scala.util.{Failure, Success}
 import scalatags.JsDom._
 import all._

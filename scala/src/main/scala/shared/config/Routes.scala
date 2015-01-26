@@ -15,10 +15,14 @@ trait TodoIntf {
 }
 trait TodoException {
   def message: String
+
+  override def toString = message
 }
 
 case class TodoBusinessException(message:String) extends TodoException
-case class TodoSystemException(message:String) extends RuntimeException with TodoException
+case class TodoSystemException(message:String) extends RuntimeException with TodoException {
+
+}
 
 object Routes {
 

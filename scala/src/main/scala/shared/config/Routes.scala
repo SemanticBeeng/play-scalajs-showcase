@@ -8,14 +8,15 @@ trait TodoIntf {
 
   def all: Future[List[Task]]
   def create(txt: String, done: Boolean) : Future[Either[Task, TodoBusinessException]]
-  def update(id: Long): Boolean
-  def delete(id: Long): Boolean
-  //def clear = ???
+  def update(task: Task): Future[Boolean]
+  def delete(id: Long): Future[Boolean]
+  def clearCompletedTasks : Future[Boolean]
 
 }
 trait TodoException {
   def message: String
 }
+
 case class TodoBusinessException(message:String) extends TodoException
 case class TodoSystemException(message:String) extends RuntimeException with TodoException
 

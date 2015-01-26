@@ -4,7 +4,15 @@ Evolves the original code to demonstrate the use a of a shared business interfac
 
 The intent is to create a TodoClient and a TodoServer that share the same API, TodoIntf.
 
-This uses use Play! controllers only for marshalling,
+The question is what is the role of Play! controllers in this context
 
-As opposed to using AutoWire, this approach preserves the Play! strongly typed controllers so callers of these controllers can access the same functionality, even if through a slightly different, web like API.
+1. This approach uses Play! controllers for marshalling
+
+1. As opposed to using AutoWire, this approach preserves the Play! strongly typed controllers.
+
+This way, the semantics/functionality behind the shared business API can be consumed through
+
+1. Directly through the TodoIntf and TodoClient or
+
+1. Through the Play! controllers which provide a very closely related, even though slightly different, web like API.
 

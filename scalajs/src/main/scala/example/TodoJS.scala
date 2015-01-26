@@ -4,7 +4,7 @@ import common.Framework
 import org.scalajs.dom
 import org.scalajs.dom.extensions.AjaxException
 import shared.config.Routes
-import shared.config.Routes.{TodoSystemException, TodoException, TodoBusinessException, TodoIntf}
+import shared.config.{TodoSystemException, TodoException, TodoBusinessException, TodoIntf}
 import scala.util.{Failure, Success}
 import scalatags.JsDom._
 import all._
@@ -39,31 +39,63 @@ object TodoJS {
       /**
        *
        */
-      def create(txt: String, done: Boolean): Future[Either[Task, TodoException]] = {
+      override def create(txt: String, done: Boolean): Future[Either[Task, TodoBusinessException]] = {
 
         val json = s"""{"txt": "${txt}", "done": ${done}}"""
         Ajax.postAsJson(Routes.Todos.create, json).map { r =>
-          Left(read[Task](r.responseText))
+
+          read[Either[Task, TodoBusinessException]](r.responseText)
         }.recover {
-          case e: AjaxException => return Future(Right(new TodoBusinessException(e.xhr.responseText)))
-          case e1 => return Future(Right(new TodoSystemException("Unknown error")))
+          // Trigger client side system exceptions
+          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
+          case e1 => throw new TodoSystemException("Unknown error")
         }
       }
 
       /**
        *
        */
-      def update(id: Long): Boolean = {
-        true
+      override def update(task: Task): Future[Boolean] = {
+
+        val json = s"""{"txt": "${task.txt}", "done": ${task.done}}"""
+        //task.id.map{ id =>
+        Ajax.postAsJson(Routes.Todos.update(task.id.get), json).map { r =>
+
+          read[Boolean](r.responseText)
+        }.recover {
+          // Trigger client side system exceptions
+          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
+          case e1 => throw new TodoSystemException("Unknown error")
+        }
       }
 
       /**
        *
        */
-      def delete(id: Long): Boolean = {
-        true
+      override def delete(id: Long): Future[Boolean] = {
+        Ajax.delete(Routes.Todos.delete(id)).map { r =>
+
+          read[Boolean](r.responseText)
+        }.recover {
+          // Trigger client side system exceptions
+          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
+          case e1 => throw new TodoSystemException("Unknown error")
+        }
       }
 
+      /**
+       *
+       */
+      override def clearCompletedTasks: Future[Boolean] = {
+        Ajax.postAsForm(Routes.Todos.clear).map { r =>
+
+          read[Boolean](r.responseText)
+        }.recover {
+          // Trigger client side system exceptions
+          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
+          case e1 => throw new TodoSystemException("Unknown error")
+        }
+      }
     }
 
     val tasks = Var(List.empty[Task])
@@ -105,15 +137,15 @@ object TodoJS {
     def create(txt: String, done: Boolean = false) = {
 
       TodoClient.create(txt, done).onComplete {
-        case Success(result) =>
 
+        case Success(result) =>
           if (result.isLeft) {
             tasks() = result.left.get +: tasks()
           }
           else {
             dom.alert(result.right.get.message)
           }
-        case Failure(e) => dom.alert("Future failed to complete: " + e.getMessage)
+        case Failure(e) => dom.alert("create failed: " + e.getMessage)
       }
     }
 
@@ -122,28 +154,44 @@ object TodoJS {
      */
     def update(task: Task) = {
 
-      val json = s"""{"txt": "${task.txt}", "done": ${task.done}}"""
-      //task.id.map{ id =>
-      Ajax.postAsJson(Routes.Todos.update(task.id.get), json).map { r =>
-        if (r.ok) {
+      TodoClient.update(task).onComplete {
+
+        case Success(_) =>
           val pos = tasks().indexWhere(t => t.id == task.id)
           tasks() = tasks().updated(pos, task)
-        }
+
+        //case Success(false) => dom.alert("update failed")
+        case Failure(e) => dom.alert("update failed: " + e.getMessage)
       }
-      //}
     }
 
-    def delete(idOp: Option[Long]) /*: boolean */ = {
+    /**
+     *
+     */
+    def delete(idOp: Option[Long]) = {
       idOp.map { id =>
-        Ajax.delete(Routes.Todos.delete(id)).map { r =>
-          if (r.ok) tasks() = tasks().filter(_.id != idOp)
+        TodoClient.delete(id).onComplete {
+
+          case Success(_) =>
+            tasks() = tasks().filter(_.id != idOp)
+
+          //case Success(false) => dom.alert("delete failed")
+          case Failure(e) => dom.alert("delete failed: " + e.getMessage)
         }
       }
     }
 
-    def clearCompletedTasks = {
-      Ajax.postAsForm(Routes.Todos.clear).map { r =>
-        if (r.ok) tasks() = tasks().filter(!_.done)
+    /**
+     *
+     */
+    def clearCompletedTasks() = {
+      TodoClient.clearCompletedTasks.onComplete {
+
+        case Success(true) =>
+          tasks() = tasks().filter(!_.done)
+
+        case Success(false) => dom.alert("clearCompletedTasks failed")
+        case Failure(e) => dom.alert("clearCompletedTasks failed: " + e.getMessage)
       }
     }
 

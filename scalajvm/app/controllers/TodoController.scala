@@ -8,44 +8,64 @@ import play.api.libs.json.Reads._
 import play.api.libs.json._
 import play.api.mvc._
 import shared.Task
-import shared.config.Routes.{TodoException, TodoIntf, TodoSystemException}
+import shared.config.{TodoBusinessException, TodoIntf, TodoSystemException}
 import upickle._
 
 import scala.concurrent.Future
 
+/**
+ *
+ */
 object TodoServer extends TodoIntf {
 
-  def all: Future[List[Task]] = {
+  /**
+   *
+   */
+  override def all: Future[List[Task]] = {
     TaskModel.store.all
   }
 
   /**
    *
    */
-  def create(txt: String, done: Boolean): Future[Either[Task, TodoException]] = {
+  override def create(txt: String, done: Boolean): Future[Either[Task, TodoBusinessException]] = {
 
     TaskModel.store.create(txt, done).map{ task =>
       Left(task)
     }.recover{
-      case e: InsufficientStorageException => return Future(Right(new TodoSystemException(e.getMessage)))
-      case e: Throwable => return Future(Right(new TodoSystemException(e.getMessage)))
+      // @todo Reconsider this approach
+      case e: InsufficientStorageException => return Future(Right(new TodoBusinessException(e.getMessage)))
+      case e: Throwable => throw new TodoSystemException(e.getMessage)
     }
   }
 
   /**
    *
    */
-  def update(id: Long): Boolean = {
-    true
+  override def update(task: Task): Future[Boolean] = {
+    TaskModel.store.update(task)
   }
 
   /**
    *
    */
-  def delete(id: Long): Boolean = {
-    true
+  override def delete(id: Long): Future[Boolean] = {
+    TaskModel.store.delete(id)
+  }
+
+  /**
+   *
+   */
+  override def clearCompletedTasks: Future[Boolean] = {
+    TaskModel.store.clearCompletedTasks.map { r =>
+      r > 0
+    }
   }
 }
+
+/**
+ *
+ */
 object TodoController extends Controller{
 
   implicit val jsonReader = (
@@ -69,28 +89,56 @@ object TodoController extends Controller{
     }
   }
 
+  /**
+   *
+   */
   def create = Action.async(parse.json){ implicit request =>
     val fn = (txt: String, done: Boolean) =>
+
+      // @nick Delegate to implementation of shared API
       TodoServer.create(txt, done).map { r =>
         Ok(write(r))
       }
-//      }.recover{
-//        case e: InsufficientStorageException => InsufficientStorage(e)
-//        case e: Throwable => InternalServerError(e)
-//      }
     executeRequest(fn)
   }
 
+  /**
+   *
+   */
   def update(id: Long) = Action.async(parse.json){ implicit request =>
     val fn = (txt: String, done: Boolean) =>
-      TaskModel.store.update(Task(Some(id), txt, done)).map{ r =>
+
+      // @nick Delegate to implementation of shared API
+      TodoServer.update(Task(Some(id), txt, done)).map{ r =>
         if(r) Ok else BadRequest
       }.recover{ case e => InternalServerError(e)}
     executeRequest(fn)
   }
 
+  /**
+   *
+   */
+  def delete(id: Long) = Action.async{ implicit request =>
+
+    // @nick Delegate to implementation of shared API
+    TodoServer.delete(id).map{ r =>
+      if(r) Ok else BadRequest
+    }.recover{ case e => InternalServerError(e)}
+  }
+
+  /**
+   *
+   */
+  def clear = Action.async{ implicit request =>
+
+    // @nick Delegate to implementation of shared API
+    TodoServer.clearCompletedTasks.map{ r =>
+      Ok(write(r))
+    }.recover{ case e => InternalServerError(e)}
+  }
+
   def executeRequest(fn: (String, Boolean) => Future[Result])
-    (implicit request: Request[JsValue]) = {
+                    (implicit request: Request[JsValue]) = {
     request.body.validate[(String, Boolean)].map{
       case (txt, done) => {
         fn(txt, done)
@@ -98,18 +146,6 @@ object TodoController extends Controller{
     }.recoverTotal{
       e => Future(BadRequest(e))
     }
-  }
-
-  def delete(id: Long) = Action.async{ implicit request =>
-    TaskModel.store.delete(id).map{ r =>
-      if(r) Ok else BadRequest
-    }.recover{ case e => InternalServerError(e)}
-  }
-
-  def clear = Action.async{ implicit request =>
-    TaskModel.store.clearCompletedTasks.map{ r =>
-      Ok(write(r))
-    }.recover{ case e => InternalServerError(e)}
   }
 
 }

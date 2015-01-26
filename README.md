@@ -16,3 +16,6 @@ This way, the semantics/functionality behind the shared business API can be cons
 
 1. Through the Play! controllers which provide a very closely related, even though slightly different, web like API.
 
+Debug with
+
+$ sbt -jvm-debug 9999 run

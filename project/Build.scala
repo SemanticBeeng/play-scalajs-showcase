@@ -1,10 +1,13 @@
 import sbt._
 import Keys._
 import play.Play._
-import scala.scalajs.sbtplugin.ScalaJSPlugin._
-import ScalaJSKeys._
+//import scala.scalajs.sbtplugin.ScalaJSPlugin._
+//import ScalaJSKeys._
+import org.scalajs.sbtplugin._
+import ScalaJSPlugin.autoImport._
+//import Implicits._
 import com.typesafe.sbt.packager.universal.UniversalKeys
-import com.typesafe.sbteclipse.core.EclipsePlugin.EclipseKeys
+//import com.typesafe.sbteclipse.core.EclipsePlugin.EclipseKeys
 
 import play.Play.autoImport._
 import PlayKeys._
@@ -40,9 +43,9 @@ object ApplicationBuild extends Build with UniversalKeys {
 
   )
   .settings(sharedScalaSettings: _*) 
-  .settings(
-    testFrameworks += new TestFramework("utest.runner.Framework")
-  )
+  //.settings(
+  //  testFrameworks += new TestFramework("utest.runner.Framework")
+  //)
 
   lazy val scalajvmSettings =
     Seq(
@@ -56,17 +59,19 @@ object ApplicationBuild extends Build with UniversalKeys {
       dist <<= dist.dependsOn(fullOptJS in (scalajs, Compile)),
       stage <<= stage.dependsOn(fullOptJS in (scalajs, Compile)),
       libraryDependencies ++= Dependencies.scalajvm.value,
-      EclipseKeys.skipParents in ThisBuild := false,
+      //EclipseKeys.skipParents in ThisBuild := false,
       commands += preStartCommand
     ) ++ (
       // ask scalajs project to put its outputs in scalajsOutputDir
-      Seq(packageExternalDepsJS, packageInternalDepsJS, packageExportedProductsJS, packageLauncher, fastOptJS, fullOptJS) map { packageJSKey =>
+      // @todo : is this all?
+      // see https://github.com/scala-js/scala-js/blob/34f5959c0f709ad69b79c9c0cc9516365d9fb687/sbt-plugin/src/main/scala/scala/scalajs/sbtplugin/ScalaJSPlugin.scala
+      Seq(/*packageExternalDepsJS, packageInternalDepsJS, packageExportedProductsJS, packageLauncher,*/packageJSDependencies, fastOptJS, fullOptJS) map { packageJSKey =>
         crossTarget in (scalajs, Compile, packageJSKey) := scalajsOutputDir.value
       }
     ) ++ sharedDirectorySettings
 
   lazy val scalajsSettings =
-    scalaJSSettings ++ Seq(
+    /*scalaJSSettings ++*/ Seq(
       name := "scalajs-example",
       version := Versions.app,
       scalaVersion := Versions.scala,
@@ -80,7 +85,8 @@ object ApplicationBuild extends Build with UniversalKeys {
     Seq(
       name := "shared-scala-example",
       scalaVersion := Versions.scala,
-      libraryDependencies ++= Dependencies.shared.value
+      libraryDependencies ++= Dependencies.shared.value,
+      testFrameworks += new TestFramework("utest.runner.Framework")
     )
 
   lazy val sharedDirectorySettings = Seq(
@@ -113,8 +119,8 @@ object ApplicationBuild extends Build with UniversalKeys {
 
 object Dependencies {
   val shared = Def.setting(Seq(
-    //"com.lihaoyi" %%% "upickle" % "0.2.4",
-    "com.lihaoyi" %% "utest" % "0.2.5-M3" % "test"
+    //"com.lihaoyi" %% "upickle" % "0.2.4",
+    "com.lihaoyi" %%% "utest" % "0.2.5-M3" % "test"
    ))
 
   val scalajvm = Def.setting(shared.value ++ Seq(
@@ -123,21 +129,24 @@ object Dependencies {
     anorm,
     "com.typesafe.slick" %% "slick" % "2.1.0",
     "com.typesafe.play" %% "play-slick" % "0.8.0",
-    "com.lihaoyi" %% "upickle" % "0.2.4",
+    //"com.lihaoyi" %% "upickle" % "0.2.4",
     "org.webjars" %% "webjars-play" % "2.3.0",
     "org.webjars" % "jquery" % "2.1.1",
     "org.webjars" % "codemirror" % "4.3",
     "org.webjars" % "bootstrap" % "3.2.0",
-    "org.webjars" % "font-awesome" % "4.1.0"
+    "org.webjars" % "font-awesome" % "4.1.0",
+    "com.lihaoyi" %% "utest" % "0.2.5-M3" % "test"
   ))
 
   val scalajs = Def.setting(shared.value ++ Seq(
-    "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % Versions.scalajsDom,
-    "org.scala-lang.modules.scalajs" %% "scalajs-jasmine-test-framework" % scalaJSVersion % "test",
-    "com.lihaoyi" %%% "upickle" % "0.2.4",
+    //"org.scala-lang.modules.scalajs" %%% "scalajs-dom" % Versions.scalajsDom,
+    "org.scala-js" %%% "scalajs-dom" % "0.7.0",
+    //"org.scala-lang.modules.scalajs" %% "scalajs-jasmine-test-framework" % scalaJSVersion % "test",
+    //"com.lihaoyi" %%% "upickle" % "0.2.4",
     "com.scalatags" %%% "scalatags" % "0.4.0",
     "com.scalarx" %%% "scalarx" % "0.2.6",
-    "org.scala-lang.modules.scalajs" %%% "scalajs-jquery" % "0.6"
+    "org.scala-lang.modules.scalajs" %%% "scalajs-jquery" % "0.6",
+    "com.lihaoyi" %%% "utest" % "0.2.5-M3" % "test"
   ))
 }
 

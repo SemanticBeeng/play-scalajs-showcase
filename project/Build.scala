@@ -22,7 +22,7 @@ object ApplicationBuild extends Build {
       scalaVersion := Versions.scala,
       libraryDependencies ++= Dependencies.shared.value,
       libraryDependencies ++= Seq(
-        "com.lihaoyi" %%% "utest" % "0.2.5-RC1" % "test"
+        "com.lihaoyi" %%% "utest" % Versions.uTest % "test"
       ),
 
       testFrameworks += new TestFramework("utest.runner.Framework")
@@ -38,7 +38,7 @@ object ApplicationBuild extends Build {
 object Dependencies {
   val shared = Def.setting(Seq(
     //"com.lihaoyi" %%% "upickle" % "0.2.4",
-    "com.lihaoyi" %% "utest" % "0.2.5-RC1" % "test"
+    "com.lihaoyi" %% "utest" % Versions.uTest % "test"
   ))
 
   val jvm = Def.setting(Seq(
@@ -47,7 +47,7 @@ object Dependencies {
     anorm,
     "com.typesafe.slick" %% "slick" % "2.1.0",
     "com.typesafe.play" %% "play-slick" % "0.8.0",
-    "com.lihaoyi" %% "upickle" % "0.2.5-RC1",
+    "com.lihaoyi" %% "upickle" % Versions.uPickle,
     "org.webjars" %% "webjars-play" % "2.3.0",
     "org.webjars" % "jquery" % "2.1.1",
     "org.webjars" % "codemirror" % "4.3",
@@ -60,18 +60,22 @@ object Dependencies {
 
   val js = Def.setting(Seq(
     "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDom,
-    //"org.scala-lang.modules.scalajs" %% "scalajs-jasmine-test-framework" % scalaJSVersion % "test",
-    "com.lihaoyi" %%% "upickle" % "0.2.5-M3",
-    "com.scalatags" %%% "scalatags" % "0.4.0",
-    "com.scalarx" %%% "scalarx" % "0.2.6"
-    //"org.scala-lang.modules.scalajs" %%% "scalajs-jquery" % "0.6"    "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDom
+    "com.lihaoyi" %%% "upickle" % Versions.uPickle,
+    "com.scalatags" %%% "scalatags" % Versions.scalaTags,
+    "com.scalarx" %%% "scalarx" % Versions.scalaRx
+
   ))
 }
 
 object Versions {
   val app = "0.1.0-SNAPSHOT"
   val scala = "2.11.2"
+  //val scalaJSVersion = "-RC2"
   val scalajsDom = "0.7.0"
   val jquery = "1.11.1"
   val playScalajsSourcemaps = "0.1.0"
+  val uPickle = "0.2.6-RC1"
+  val uTest = "0.2.5-RC1"
+  val scalaTags = "0.4.3-RC1"
+  val scalaRx = "0.2.7-RC1"
 }

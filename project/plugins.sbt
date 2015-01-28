@@ -14,7 +14,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.7")
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
 
 //addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.5")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.0-RC1")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.0-RC2")
 
 addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.1.0")
 

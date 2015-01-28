@@ -12,7 +12,7 @@ object ApplicationBuild extends Build {
 
   override def rootProject = Some(jvm)
 
-  val showcase = PlayScalaJS("scala", file(".")).
+  val showcase = PlayScalaJS("scalajvm", "scalajs", file("."), CrossType.Full).
     jvmSettings(
       libraryDependencies ++= Dependencies.jvm.value
     ).jsSettings(
@@ -32,7 +32,7 @@ object ApplicationBuild extends Build {
   lazy val js = showcase.js
 
   // Only if you use IntelliJ: the shared project makes IntelliJ happy without using symlinks
-  lazy val shared = Project("showcaseShared", file("shared"))
+  lazy val scala = Project("scala", file("scala"))
 }
 
 object Dependencies {

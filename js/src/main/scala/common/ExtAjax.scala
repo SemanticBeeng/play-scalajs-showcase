@@ -1,17 +1,14 @@
 package common
 
-import upickle._
-
 import org.scalajs.dom.XMLHttpRequest
 import org.scalajs.dom.extensions.Ajax
-import shared._
 
 class ExtAjax(ajax: Ajax.type) {
 
   def put(url: String,
           data: String = "",
           timeout: Int = 0,
-          headers: Seq[(String, String)] = Nil,
+          headers: Map[String, String] = Map.empty,
           withCredentials: Boolean = false) = {
     apply("PUT", url, data, timeout, headers, withCredentials)
   }
@@ -19,7 +16,7 @@ class ExtAjax(ajax: Ajax.type) {
   def delete(url: String,
           data: String = "",
           timeout: Int = 0,
-          headers: Seq[(String, String)] = Nil,
+          headers: Map[String, String] = Map.empty,
           withCredentials: Boolean = false) = {
     apply("DELETE", url, data, timeout, headers, withCredentials)
   }
@@ -27,7 +24,7 @@ class ExtAjax(ajax: Ajax.type) {
   def postAsForm(url: String,
            data: String = "",
            timeout: Int = 0,
-           headers: Seq[(String, String)] = Nil,
+           headers: Map[String, String] = Map.empty,
            withCredentials: Boolean = false) = {
     val contentType = Seq("Content-Type"->"application/x-www-form-urlencoded")
     apply("POST", url, data, timeout, headers ++ contentType, withCredentials)
@@ -36,7 +33,7 @@ class ExtAjax(ajax: Ajax.type) {
   def postAsJson(url: String,
                  data: String = "",
                  timeout: Int = 0,
-                 headers: Seq[(String, String)] = Nil,
+                 headers: Map[String, String] = Map.empty,
                  withCredentials: Boolean = false) = {
     val contentType = Seq("Content-Type"->"application/json")
     apply("POST", url, data, timeout, headers ++ contentType, withCredentials)
@@ -46,10 +43,10 @@ class ExtAjax(ajax: Ajax.type) {
             url: String,
             data: String = "",
             timeout: Int = 0,
-            headers: Seq[(String, String)] = Nil,
+            headers: Map[String, String] = Map.empty,
             withCredentials: Boolean = false) = {
     val ajaxReq = Seq("X-Requested-With"->"XMLHttpRequest")
-    ajax.apply(method, url, data, timeout, headers ++ ajaxReq, withCredentials)
+    ajax.apply(method, url, data, timeout, headers ++ ajaxReq, withCredentials, "text/xml")
   }
 
 }

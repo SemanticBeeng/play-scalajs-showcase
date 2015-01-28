@@ -12,7 +12,7 @@ object ApplicationBuild extends Build {
 
   override def rootProject = Some(jvm)
 
-  val showcase = PlayScalaJS("scalajvm", "scalajs", file("."), CrossType.Full).
+  val showcase = PlayScalaJS("jvm", "js", file("."), CrossType.Full).
     jvmSettings(
       libraryDependencies ++= Dependencies.jvm.value
     ).jsSettings(
@@ -21,9 +21,9 @@ object ApplicationBuild extends Build {
       version := Versions.app,
       scalaVersion := Versions.scala,
       libraryDependencies ++= Dependencies.shared.value,
-      libraryDependencies ++= Seq(
-        "com.lihaoyi" %%% "utest" % Versions.uTest % "test"
-      ),
+//      libraryDependencies ++= Seq(
+//        "com.lihaoyi" %%% "utest" % Versions.uTest % "test"
+//      ),
 
       testFrameworks += new TestFramework("utest.runner.Framework")
     )
@@ -32,7 +32,7 @@ object ApplicationBuild extends Build {
   lazy val js = showcase.js
 
   // Only if you use IntelliJ: the shared project makes IntelliJ happy without using symlinks
-  lazy val scala = Project("scala", file("scala"))
+  lazy val scala = Project("shared", file("shared"))
 }
 
 object Dependencies {
@@ -60,6 +60,7 @@ object Dependencies {
 
   val js = Def.setting(Seq(
     "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDom,
+    "be.doeraene" %%% "scalajs-jquery" % "0.7.0",
     "com.lihaoyi" %%% "upickle" % Versions.uPickle,
     "com.lihaoyi" %%% "scalatags" % Versions.scalaTags,
     "com.lihaoyi" %%% "scalarx" % Versions.scalaRx

@@ -162,7 +162,7 @@ object ChatJS {
     val sse = new EventSource(Routes.Chat.connectSSE(username))
     sse.onmessage = ChatClient.receive _
 
-    def encode(value: String) = js.encodeURIComponent(value)
+    def encode(value: String) = js.URIUtils.encodeURIComponent(value)
 
     override def send(msg: String): Unit = {
       Ajax.postAsForm(Routes.Chat.talk, s"username=${encode(username)}&msg=${encode(msg)}")

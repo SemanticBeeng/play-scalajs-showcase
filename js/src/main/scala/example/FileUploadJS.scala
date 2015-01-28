@@ -1,13 +1,12 @@
 package example
 
 import org.scalajs.dom
+import org.scalajs.jquery.{jQuery => $}
+
 import scala.scalajs.js
+import scala.scalajs.js.Dynamic.{global => g}
 import scala.scalajs.js.annotation.JSExport
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
-import js.Dynamic.{global => g, _}
-import scalatags.JsDom._
-import all._
-import org.scalajs.jquery.{jQuery=>$,_}
+import scalatags.JsDom.all._
 
 @JSExport
 object FileUploadJS {
@@ -167,7 +166,7 @@ object FileUploadJS {
       });
 
     $id("fileSelect").addEventListener("change", fileSelectHandler _, false)
-    $id("fileSelect").ondragend
+    //$id("fileSelect").oncopy[DropTargetDragEvent, ??] //@todo check this
     val xhr = new dom.XMLHttpRequest
     if(xhr.upload != null){
       val fileDrag = $id("fileDrag")
@@ -195,7 +194,7 @@ object FileReader extends js.Object {
 }
 
 class FileReader() extends dom.EventTarget {
-  import dom._
+  import org.scalajs.dom._
 
   /**
    * A DOMError representing the error that occurred while reading the file.

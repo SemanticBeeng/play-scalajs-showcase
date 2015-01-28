@@ -1,148 +1,77 @@
 import sbt._
 import Keys._
-import play.Play._
-import scala.scalajs.sbtplugin.ScalaJSPlugin._
-import ScalaJSKeys._
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import playscalajs.PlayScalaJS
 import com.typesafe.sbt.packager.universal.UniversalKeys
-import com.typesafe.sbteclipse.core.EclipsePlugin.EclipseKeys
-
+import play.Play._
 import play.Play.autoImport._
 import PlayKeys._
 
-object ApplicationBuild extends Build with UniversalKeys {
 
+object ApplicationBuild extends Build {
 
-  val scalajsOutputDir = Def.settingKey[File]("directory for javascript files output by scalajs")
+  override def rootProject = Some(jvm)
 
-  override def rootProject = Some(scalajvm)
+  val showcase = PlayScalaJS("scala", file(".")).
+    jvmSettings(
+      libraryDependencies ++= Dependencies.jvm.value
+    ).jsSettings(
+      libraryDependencies ++= Dependencies.js.value
+    ).settings(
+      version := Versions.app,
+      scalaVersion := Versions.scala,
+      libraryDependencies ++= Dependencies.shared.value,
+      libraryDependencies ++= Seq(
+        "com.lihaoyi" %%% "utest" % "0.2.5-RC1" % "test"
+      ),
 
-  val sharedSrcDir = "scala"
-
-  lazy val scalajvm = Project(
-    id = "scalajvm",
-    base = file("scalajvm")
-
-  ).enablePlugins(play.PlayScala)
-    .settings(scalajvmSettings: _*)
-    .aggregate(scalajs)
-    .aggregate (sharedScala)
-
-  lazy val scalajs = Project(
-    id   = "scalajs",
-    base = file("scalajs")
-
-  ).settings (scalajsSettings: _*)
-    .aggregate (sharedScala)
-
-  lazy val sharedScala = Project(
-    id = "scala",
-    base = file(sharedSrcDir)
-
-  )
-    .settings(sharedScalaSettings: _*)
-    .settings(
       testFrameworks += new TestFramework("utest.runner.Framework")
     )
 
-  lazy val scalajvmSettings =
-    Seq(
-      name := "play-example",
-      version := Versions.app,
-      scalaVersion := Versions.scala,
-      scalacOptions ++= Seq("-feature"),
-      routesImport += "config.Routes._",
-      scalajsOutputDir := (classDirectory in Compile).value / "public" / "javascripts",
-      compile in Compile <<= (compile in Compile).dependsOn(fastOptJS in (scalajs, Compile)).dependsOn(copySourceMapsTask),
-      dist <<= dist.dependsOn(fullOptJS in (scalajs, Compile)),
-      stage <<= stage.dependsOn(fullOptJS in (scalajs, Compile)),
-      libraryDependencies ++= Dependencies.scalajvm.value,
-      EclipseKeys.skipParents in ThisBuild := false,
-      commands += preStartCommand
-    ) ++ (
-      // ask scalajs project to put its outputs in scalajsOutputDir
-      Seq(packageExternalDepsJS, packageInternalDepsJS, packageExportedProductsJS, packageLauncher, fastOptJS, fullOptJS) map { packageJSKey =>
-        crossTarget in (scalajs, Compile, packageJSKey) := scalajsOutputDir.value
-      }
-      ) ++ sharedDirectorySettings
+  lazy val jvm = showcase.jvm
+  lazy val js = showcase.js
 
-  lazy val scalajsSettings =
-    scalaJSSettings ++ Seq(
-      name := "scalajs-example",
-      version := Versions.app,
-      scalaVersion := Versions.scala,
-      persistLauncher := true,
-      persistLauncher in Test := false,
-      relativeSourceMaps := true,
-      libraryDependencies ++= Dependencies.scalajs.value
-    ) ++ sharedDirectorySettings
-
-  lazy val sharedScalaSettings =
-    Seq(
-      name := "shared-scala-example",
-      scalaVersion := Versions.scala,
-      libraryDependencies ++= Dependencies.shared.value
-    )
-
-  lazy val sharedDirectorySettings = Seq(
-    unmanagedSourceDirectories in Compile += new File((file(".") / sharedSrcDir / "src" / "main" / "scala").getCanonicalPath),
-    unmanagedSourceDirectories in Test += new File((file(".") / sharedSrcDir / "src" / "test" / "scala").getCanonicalPath),
-    unmanagedResourceDirectories in Compile += file(".") / sharedSrcDir / "src" / "main" / "resources",
-    unmanagedResourceDirectories in Test += file(".") / sharedSrcDir / "src" / "test" / "resources"
-  )
-
-  val copySourceMapsTask = Def.task {
-    val scalaFiles = (Seq(sharedScala.base, scalajs.base) ** ("*.scala")).get
-    for (scalaFile <- scalaFiles) {
-      val target = new File((classDirectory in Compile).value, scalaFile.getPath)
-      IO.copyFile(scalaFile, target)
-    }
-  }
-
-  // Use reflection to rename the 'start' command to 'play-start'
-  Option(play.Play.playStartCommand.getClass.getDeclaredField("name")) map { field =>
-    field.setAccessible(true)
-    field.set(playStartCommand, "play-start")
-  }
-
-  // The new 'start' command optimises the JS before calling the Play 'start' renamed 'play-start'
-  val preStartCommand = Command.args("start", "<port>") { (state: State, args: Seq[String]) =>
-    Project.runTask(fullOptJS in (scalajs, Compile), state)
-    state.copy(remainingCommands = ("play-start " + args.mkString(" ")) +: state.remainingCommands)
-  }
+  // Only if you use IntelliJ: the shared project makes IntelliJ happy without using symlinks
+  lazy val shared = Project("showcaseShared", file("shared"))
 }
 
 object Dependencies {
   val shared = Def.setting(Seq(
     //"com.lihaoyi" %%% "upickle" % "0.2.4",
-    "com.lihaoyi" %% "utest" % "0.2.5-M3" % "test"
+    "com.lihaoyi" %% "utest" % "0.2.5-RC1" % "test"
   ))
 
-  val scalajvm = Def.setting(shared.value ++ Seq(
+  val jvm = Def.setting(Seq(
     filters,
     jdbc,
     anorm,
     "com.typesafe.slick" %% "slick" % "2.1.0",
     "com.typesafe.play" %% "play-slick" % "0.8.0",
-    "com.lihaoyi" %% "upickle" % "0.2.4",
+    "com.lihaoyi" %% "upickle" % "0.2.5-RC1",
     "org.webjars" %% "webjars-play" % "2.3.0",
     "org.webjars" % "jquery" % "2.1.1",
     "org.webjars" % "codemirror" % "4.3",
     "org.webjars" % "bootstrap" % "3.2.0",
-    "org.webjars" % "font-awesome" % "4.1.0"
+    "org.webjars" % "font-awesome" % "4.1.0",
+
+    "com.vmunier" %% "play-scalajs-sourcemaps" % Versions.playScalajsSourcemaps,
+    "org.webjars" % "jquery" % Versions.jquery
   ))
 
-  val scalajs = Def.setting(shared.value ++ Seq(
-    "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % Versions.scalajsDom,
-    "org.scala-lang.modules.scalajs" %% "scalajs-jasmine-test-framework" % scalaJSVersion % "test",
-    "com.lihaoyi" %%% "upickle" % "0.2.4",
+  val js = Def.setting(Seq(
+    "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDom,
+    //"org.scala-lang.modules.scalajs" %% "scalajs-jasmine-test-framework" % scalaJSVersion % "test",
+    "com.lihaoyi" %%% "upickle" % "0.2.5-M3",
     "com.scalatags" %%% "scalatags" % "0.4.0",
-    "com.scalarx" %%% "scalarx" % "0.2.6",
-    "org.scala-lang.modules.scalajs" %%% "scalajs-jquery" % "0.6"
+    "com.scalarx" %%% "scalarx" % "0.2.6"
+    //"org.scala-lang.modules.scalajs" %%% "scalajs-jquery" % "0.6"    "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDom
   ))
 }
 
 object Versions {
   val app = "0.1.0-SNAPSHOT"
   val scala = "2.11.2"
-  val scalajsDom = "0.6"
+  val scalajsDom = "0.7.0"
+  val jquery = "1.11.1"
+  val playScalajsSourcemaps = "0.1.0"
 }

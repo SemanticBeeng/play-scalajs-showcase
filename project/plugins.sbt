@@ -6,6 +6,10 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 
 //resolvers += "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
+resolvers += Resolver.url("scala-js-releases",
+  url("http://dl.bintray.com/scala-js/scala-js-releases/"))(
+    Resolver.ivyStylePatterns)
+
 //addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.7.0-SNAPSHOT")
 
 // Sbt plugins

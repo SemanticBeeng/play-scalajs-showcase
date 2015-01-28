@@ -61,8 +61,8 @@ object Dependencies {
   val js = Def.setting(Seq(
     "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDom,
     "com.lihaoyi" %%% "upickle" % Versions.uPickle,
-    "com.scalatags" %%% "scalatags" % Versions.scalaTags,
-    "com.scalarx" %%% "scalarx" % Versions.scalaRx
+    "com.lihaoyi" %%% "scalatags" % Versions.scalaTags,
+    "com.lihaoyi" %%% "scalarx" % Versions.scalaRx
 
   ))
 }

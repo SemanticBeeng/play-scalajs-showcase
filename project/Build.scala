@@ -24,6 +24,7 @@ object ApplicationBuild extends Build {
         RuntimeDOM,
         //"org.webjars" % "jquery" % Versions.jquery / "jquery.js"
         "org.webjars" % "jquery" % "1.10.2" / "jquery.js"
+        //"com.lihaoyi" %% "upickle" % Versions.uPickle
       )
     ).settings(
       version := Versions.app,
@@ -46,6 +47,7 @@ object ApplicationBuild extends Build {
 object Dependencies {
   val shared = Def.setting(Seq(
     //"com.lihaoyi" %%% "upickle" % "0.2.4",
+    "com.lihaoyi" %% "upickle" % Versions.uPickle,
     "com.lihaoyi" %% "utest" % Versions.uTest % "test"
   ))
 

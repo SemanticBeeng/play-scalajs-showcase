@@ -4,11 +4,11 @@ import org.scalajs.dom.extensions.Ajax
 import shared.config.Routes
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExport
-import js.Dynamic.{ global => g }
+import js.Dynamic.{global => g}
 import org.scalajs.dom
 import scalatags.JsDom._
 import all._
-import org.scalajs.jquery.{jQuery=>$}
+import org.scalajs.jquery.{jQuery => $}
 
 @JSExport
 object ChatJS {
@@ -20,26 +20,26 @@ object ChatJS {
 
   var client: Option[ChatClient] = None
 
-  def signInPanel = div(id:="signInPanel"){
-    form(`class`:="form-inline", "role".attr:="form")(
-      div(id:="usernameForm", `class`:="form-group")(
-        div(`class`:="input-group")(
-          div(`class`:="input-group-addon", raw("&#9786;")),
-          input(id:="username", `class`:="form-control", `type`:="text", placeholder:="Enter username")
+  def signInPanel = div(id := "signInPanel") {
+    form(`class` := "form-inline", "role".attr := "form")(
+      div(id := "usernameForm", `class` := "form-group")(
+        div(`class` := "input-group")(
+          div(`class` := "input-group-addon", raw("&#9786;")),
+          input(id := "username", `class` := "form-control", `type` := "text", placeholder := "Enter username")
         )
       ),
-      span(style:="margin:0px 5px"),
-      select(id:="channel", `class`:="form-control")(
-        option(value:="0", "WebSocket"), option(value:="1", "Server-Sent Events")),
-      span(style:="margin:0px 5px"),
-      button(`class`:="btn btn-default", onclick:={ () =>
+      span(style := "margin:0px 5px"),
+      select(id := "channel", `class` := "form-control")(
+        option(value := "0", "WebSocket"), option(value := "1", "Server-Sent Events")),
+      span(style := "margin:0px 5px"),
+      button(`class` := "btn btn-default", onclick := { () =>
         val input = $("#username").value().toString.trim
-        if(input == "") {
+        if (input == "") {
           $("#usernameForm").addClass("has-error")
           dom.alert("Invalid username")
-        }else{
+        } else {
           $("#usernameForm").removeClass("has-error")
-          client = ChatClient.connect(wsBaseUrl, input).map{ c =>
+          client = ChatClient.connect(wsBaseUrl, input).map { c =>
             $("#loginAs").text(s"Login as: ${c.username}")
             $("#username").value("")
             $("#signInPanel").addClass("hide")
@@ -52,11 +52,11 @@ object ChatJS {
     )
   }
 
-  def chatPanel = div(id:="chatPanel", `class`:="hide")(
-    div(`class`:="row", style:="margin-bottom: 10px;")(
-      div(`class`:="col-md-12", style:="text-align: right;")(
-        span(id:="loginAs", style := "padding: 0px 10px;"),
-        button(`class`:="btn btn-default", onclick:={ () =>
+  def chatPanel = div(id := "chatPanel", `class` := "hide")(
+    div(`class` := "row", style := "margin-bottom: 10px;")(
+      div(`class` := "col-md-12", style := "text-align: right;")(
+        span(id := "loginAs", style := "padding: 0px 10px;"),
+        button(`class` := "btn btn-default", onclick := { () =>
           singOut
         }, "Sign out")
       )
@@ -69,20 +69,20 @@ object ChatJS {
         div(id := "messages")
       ),
       div(`class` := "panel-footer")(
-        textarea(id:="message", `class` := "form-control message", placeholder := "Say something")
+        textarea(id := "message", `class` := "form-control message", placeholder := "Say something")
       )
     )
   )
 
   def createMessage(msg: String, username: String, avatar: String) = {
-    div(`class`:=s"row message-box${if(username == client.map(_.username).getOrElse(""))"-me" else ""}")(
-      div(`class`:="col-md-2")(
-        div(`class`:="message-icon")(
-          img(src:=s"$assetsDir/images/avatars/${avatar}", `class`:="img-rounded"),
+    div(`class` := s"row message-box${if (username == client.map(_.username).getOrElse("")) "-me" else ""}")(
+      div(`class` := "col-md-2")(
+        div(`class` := "message-icon")(
+          img(src := s"$assetsDir/images/avatars/${avatar}", `class` := "img-rounded"),
           div(username)
         )
       ),
-      div(`class`:="col-md-10")(raw(msg))
+      div(`class` := "col-md-10")(raw(msg))
     )
   }
 
@@ -115,9 +115,9 @@ object ChatJS {
             Some(new SSEChatClient(username))
           } else None
         }
-      }catch{
+      } catch {
         case e: Throwable => {
-          dom.alert("Unable to connect because "+e.toString)
+          dom.alert("Unable to connect because " + e.toString)
           None
         }
       }
@@ -127,15 +127,15 @@ object ChatJS {
       val msgElem = dom.document.getElementById("messages")
       val data = js.JSON.parse(e.data.toString)
       dom.console.log(data)
-      if(data.error.toString != "undefined"){
+      if (data.error.toString != "undefined") {
         dom.alert(data.error.toString)
         singOut
-      }else{
+      } else {
         val user = data.user.name.toString
         val avatar = data.user.avatar.toString
         val message = data.message.toString
         msgElem.appendChild(createMessage(message, user, avatar).render)
-        if(msgElem.childNodes.length >= maxMessages){
+        if (msgElem.childNodes.length >= maxMessages) {
           msgElem.removeChild(msgElem.firstChild)
         }
         msgElem.scrollTop = msgElem.scrollHeight
@@ -149,7 +149,7 @@ object ChatJS {
     socket.onmessage = ChatClient.receive _
 
     override def send(msg: String): Unit = {
-      val json = js.JSON.stringify(js.Dynamic.literal(text=$("#message").value()))
+      val json = js.JSON.stringify(js.Dynamic.literal(text = $("#message").value()))
       socket.send(json)
     }
 
@@ -158,7 +158,9 @@ object ChatJS {
   }
 
   class SSEChatClient(val username: String) extends ChatClient {
+
     import common.ExtAjax._
+
     val sse = new EventSource(Routes.Chat.connectSSE(username))
     sse.onmessage = ChatClient.receive _
 
@@ -174,10 +176,12 @@ object ChatJS {
 
   def ready = {
     $("#message").keypress((e: dom.KeyboardEvent) => {
-//      dom.console.log(e)
-      if(!e.shiftKey && e.keyCode == 13) {
+      //      dom.console.log(e)
+      if (!e.shiftKey && e.keyCode == 13) {
         e.preventDefault()
-        client.map{_.send($("#message").value().toString)}
+        client.map {
+          _.send($("#message").value().toString)
+        }
         $("#message").value("")
       }
     })
@@ -213,7 +217,7 @@ class EventSource(URL: String, settings: js.Dynamic = null) extends dom.EventTar
    * W3C 2012
    * @return
    */
-  def url: String = ???
+  def url: String = js.native
 
   /**
    * The withCredentials attribute must return the value to which it was last initialized.
@@ -222,26 +226,26 @@ class EventSource(URL: String, settings: js.Dynamic = null) extends dom.EventTar
    * object's withCredentials attribute.
    * W3C 2012
    */
-  def withCredentials: Boolean = ???
+  def withCredentials: Boolean = js.native
 
   /**
    * The readyState attribute represents the state of the connection.
    * W3C 2012
    */
-  def readyState: Int = ???
+  def readyState: Int = js.native
 
-  var onopen: js.Function1[dom.Event, _] = ???
+  var onopen: js.Function1[dom.Event, _] = js.native
 
-  var onmessage: js.Function1[dom.MessageEvent, _] = ???
+  var onmessage: js.Function1[dom.MessageEvent, _] = js.native
 
-  var onerror: js.Function1[dom.Event, _] = ???
+  var onerror: js.Function1[dom.Event, _] = js.native
 
   /**
    * The close() method must abort any instances of the fetch algorithm started for this EventSource object,
    * and must set the readyState attribute to CLOSED.
    * W3C 2012
    */
-  def close(): Unit = ???
+  def close(): Unit = js.native
 
 }
 

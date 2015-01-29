@@ -1,12 +1,11 @@
 package example
 
+import org.scalajs.dom
+
 import scala.scalajs.js
 import scala.scalajs.js.JSON
 import scala.scalajs.js.annotation.JSExport
-import org.scalajs.dom
-import scalatags.JsDom._
-import all._
-import shared.foo._
+import scalatags.JsDom.all._
 
 @JSExport
 object ScalaJSInterop {
@@ -63,13 +62,13 @@ class Person(val firstName: String) extends js.Object{
    * If you leave out the return type, scala will put Nothing as the return type
    * and Scala.js doesn't work with Nothing type yet.
    */
-  def walk():Unit = ???
+  def walk():Unit = js.native
 
-  def sayHello():Unit = ???
+  def sayHello():Unit = js.native
 }
 
 class Student(firstName: String, val subject: String) extends Person(firstName) {
-  def sayGoodBye():Unit = ???
+  def sayGoodBye():Unit = js.native
 
   def notExistInJs():Unit = {
     dom.alert("You will not see this")

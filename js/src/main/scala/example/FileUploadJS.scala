@@ -48,14 +48,14 @@ object FileUploadJS {
   )
 
   trait EventTargetExt extends dom.EventTarget {
-    var files: dom.FileList = ???
+    var files: dom.FileList = js.native
 
   }
   trait EventExt extends dom.Event {
-    var dataTransfer: dom.DataTransfer = ???
+    var dataTransfer: dom.DataTransfer = js.native
 
-    var loaded: Int = ???
-    var total: Int = ???
+    var loaded: Int = js.native
+    var total: Int = js.native
   }
 
   def ready(demo: Boolean) = {
@@ -201,7 +201,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  def error: DOMError = ???
+  def error: DOMError = js.native
 
   /**
    * A number indicating the state of the FileReader. This will be one of the State constants.
@@ -211,7 +211,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  def readyState: Short = ???
+  def readyState: Short = js.native
 
   /**
    * The file's contents. This property is only valid after the read operation is
@@ -220,7 +220,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  def result: js.Any = ???
+  def result: js.Any = js.native
 
   /**
    * A handler for the abort event. This event is triggered each time the reading
@@ -228,7 +228,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  var onabort: js.Function1[Event, _] = ???
+  var onabort: js.Function1[Event, _] = js.native
 
   /**
    * A handler for the error event. This event is triggered each time the reading
@@ -236,7 +236,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  var onerror: js.Function1[Event, _] = ???
+  var onerror: js.Function1[Event, _] = js.native
 
   /**
    * A handler for the load event. This event is triggered each time the reading
@@ -244,7 +244,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  var onload: js.Function1[UIEvent, _] = ???
+  var onload: js.Function1[UIEvent, _] = js.native
 
   /**
    * A handler for the loadstart event. This event is triggered each time the reading
@@ -252,7 +252,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  var onloadstart: js.Function1[ProgressEvent, _] = ???
+  var onloadstart: js.Function1[ProgressEvent, _] = js.native
 
   /**
    * A handler for the loadend event. This event is triggered each time the reading
@@ -260,7 +260,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  var onloadend: js.Function1[ProgressEvent, _] = ???
+  var onloadend: js.Function1[ProgressEvent, _] = js.native
 
   /**
    * A handler for the progress event. This event is triggered while reading
@@ -268,14 +268,14 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  var onprogress: js.Function1[ProgressEvent, _] = ???
+  var onprogress: js.Function1[ProgressEvent, _] = js.native
 
   /**
    * Aborts the read operation. Upon return, the readyState will be DONE.
    *
    * MDN
    */
-  def abort(): Unit = ???
+  def abort(): Unit = js.native
 
   /**
    * The readAsArrayBuffer method is used to starts reading the contents of the
@@ -285,7 +285,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  def readAsArrayBuffer(blob: Blob): Unit = ???
+  def readAsArrayBuffer(blob: Blob): Unit = js.native
 
   /**
    * The readAsDataURL method is used to starts reading the contents of the specified
@@ -295,7 +295,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  def readAsDataURL(blob: Blob): Unit = ???
+  def readAsDataURL(blob: Blob): Unit = js.native
 
   /**
    * The readAsText method is used to read the contents of the specified Blob or File.
@@ -304,7 +304,7 @@ class FileReader() extends dom.EventTarget {
    *
    * MDN
    */
-  def readAsText(blob: Blob, encoding: String = "UTF-8"): Unit = ???
+  def readAsText(blob: Blob, encoding: String = "UTF-8"): Unit = js.native
 
 }
 

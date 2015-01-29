@@ -7,7 +7,6 @@ import play.Play._
 import play.Play.autoImport._
 import PlayKeys._
 
-
 object ApplicationBuild extends Build {
 
   override def rootProject = Some(jvm)
@@ -20,7 +19,12 @@ object ApplicationBuild extends Build {
       // For bindableChar
       routesImport += "config.Routes._" 
     ).jsSettings(
-      libraryDependencies ++= Dependencies.js.value
+      libraryDependencies ++= Dependencies.js.value,
+      jsDependencies ++= Seq(
+        RuntimeDOM,
+        //"org.webjars" % "jquery" % Versions.jquery / "jquery.js"
+        "org.webjars" % "jquery" % "1.10.2" / "jquery.js"
+      )
     ).settings(
       version := Versions.app,
       scalaVersion := Versions.scala,
@@ -53,11 +57,10 @@ object Dependencies {
     "com.typesafe.play" %% "play-slick" % "0.8.0",
     "com.lihaoyi" %% "upickle" % Versions.uPickle,
     "org.webjars" %% "webjars-play" % "2.3.0",
-    "org.webjars" % "jquery" % "2.1.1",
+    //"org.webjars" % "jquery" % "2.1.1",
     "org.webjars" % "codemirror" % "4.3",
     "org.webjars" % "bootstrap" % "3.2.0",
     "org.webjars" % "font-awesome" % "4.1.0",
-
     "com.vmunier" %% "play-scalajs-sourcemaps" % Versions.playScalajsSourcemaps,
     "org.webjars" % "jquery" % Versions.jquery
   ))
@@ -68,7 +71,6 @@ object Dependencies {
     "com.lihaoyi" %%% "upickle" % Versions.uPickle,
     "com.lihaoyi" %%% "scalatags" % Versions.scalaTags,
     "com.lihaoyi" %%% "scalarx" % Versions.scalaRx
-
   ))
 }
 

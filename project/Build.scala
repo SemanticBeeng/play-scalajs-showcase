@@ -14,10 +14,11 @@ object ApplicationBuild extends Build {
 
   val showcase = PlayScalaJS("jvm", "js", file("."), CrossType.Full).
     jvmSettings(
-      libraryDependencies ++= Dependencies.jvm.value
+      libraryDependencies ++= Dependencies.jvm.value,
       //scalaVersion := Versions.scala,
-      //scalacOptions ++= Seq("-feature")
-      //routesImport += "config.Routes._" @todo: is this necessary? why does the resulting app lack routes?
+      scalacOptions ++= Seq("-feature"),
+      // For bindableChar
+      routesImport += "config.Routes._" 
     ).jsSettings(
       libraryDependencies ++= Dependencies.js.value
     ).settings(

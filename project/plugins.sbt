@@ -13,7 +13,7 @@ resolvers += Resolver.url("scala-js-releases",
 //addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.7.0-SNAPSHOT")
 
 // Sbt plugins
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.6")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.7")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
 

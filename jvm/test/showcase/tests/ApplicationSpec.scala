@@ -1,3 +1,5 @@
+package showcase.tests
+
 import org.junit.runner._
 import org.specs2.mutable._
 import org.specs2.runner._

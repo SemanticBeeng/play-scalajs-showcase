@@ -7,7 +7,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 import play.api.mvc._
-import shared.domain.todo.{Task, TodoBusinessException, TodoIntf, TodoSystemException}
+import shared.domain.todo._
 import upickle._
 
 import scala.concurrent.Future
@@ -27,10 +27,10 @@ object TodoServer extends TodoIntf {
   /**
    *
    */
-  override def create(txt: String, done: Boolean): Future[Either[Task, TodoBusinessException]] = {
+  override def create(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = {
 
     TaskModel.store.create(txt, done).map { task =>
-      Left(task)
+      null //Left(task) @todo
     }.recover {
       // @todo Reconsider this approach
       case e: InsufficientStorageException => return Future(Right(new TodoBusinessException(e.getMessage)))

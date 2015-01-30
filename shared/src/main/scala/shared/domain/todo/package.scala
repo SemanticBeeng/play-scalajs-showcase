@@ -2,7 +2,7 @@ package shared.domain
 
 import shared.domain.immutabledomain.AggregateRoot
 
-import scala.collection.mutable
+import scala.collection.{Iterable, mutable}
 import scala.concurrent.Future
 
 /**
@@ -18,7 +18,7 @@ package object todo {
 
     def all: Future[List[Task]]
 
-    def create(txt: String, done: Boolean): Future[Either[Task, TodoBusinessException]]
+    def create(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]]
 
     def update(task: Task): Future[Boolean]
 

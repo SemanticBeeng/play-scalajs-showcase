@@ -1,33 +1,32 @@
 package example
 
-import common.Framework
 import org.scalajs.dom
 import org.scalajs.dom.extensions.AjaxException
-import shared.config.Routes
-import shared.domain.todo.{Task, TodoSystemException, TodoBusinessException, TodoIntf}
-import scala.util.{Failure, Success}
-import scalatags.JsDom._
-import all._
-import tags2.section
 import rx._
-import scala.scalajs.js.annotation.JSExport
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import shared.config.Routes
+import shared.domain.todo._
+
 import scala.concurrent.Future
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import scala.scalajs.js.annotation.JSExport
+import scala.util.{Failure, Success}
+import scalatags.JsDom.all._
+import scalatags.JsDom.tags2.section
 
 
 @JSExport
 object TodoJS {
 
-  import Framework._
+  import common.Framework._
 
   object Model {
 
-    import scala.scalajs.js
-    import js.Dynamic.{global => g}
+    import common.ExtAjax._
     import org.scalajs.dom.extensions.Ajax
     import org.scalajs.jquery.{jQuery => $}
     import upickle._
-    import common.ExtAjax._
+
+import scala.scalajs.js.Dynamic.{global => g}
 
     object TodoClient extends TodoIntf {
 
@@ -38,12 +37,12 @@ object TodoJS {
       /**
        *
        */
-      override def create(txt: String, done: Boolean): Future[Either[Task, TodoBusinessException]] = {
+      override def create(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = {
 
         val json = s"""{"txt": "${txt}", "done": ${done}}"""
         Ajax.postAsJson(Routes.Todos.create, json).map { r =>
 
-          read[Either[Task, TodoBusinessException]](r.responseText)
+          read[Either[Iterable[TaskEvent], TodoBusinessException]](r.responseText)
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
@@ -139,7 +138,7 @@ object TodoJS {
 
         case Success(result) =>
           if (result.isLeft) {
-            tasks() = result.left.get +: tasks()
+            //@todo implement tasks() = result.left.get +: tasks()
           }
           else {
             dom.alert(result.right.get.message)

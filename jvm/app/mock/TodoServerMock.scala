@@ -1,8 +1,9 @@
-package shared.domain.mock
+package mock
 
 import shared.domain.todo._
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  *
@@ -34,6 +35,6 @@ class TodoServerMock extends TodoIntf {
     val history = plan.uncommittedEvents
     plan.markCommitted
     nextId = nextId + 1
-    Right(history)
+    Left(history)
   }
 }

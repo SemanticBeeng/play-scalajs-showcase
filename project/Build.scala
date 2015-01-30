@@ -26,7 +26,6 @@ object ApplicationBuild extends Build {
         "org.webjars" % "jquery" % "1.10.2" / "jquery.js"
         //"com.lihaoyi" %% "upickle" % Versions.uPickle
       )
-      //utest.jsrunner.Plugin.utestJsSettings
     ).settings(
       version := Versions.app,
       scalaVersion := Versions.scala,
@@ -35,6 +34,11 @@ object ApplicationBuild extends Build {
 //        "com.lihaoyi" %%% "utest" % Versions.uTest % "test"
 //      ),
 
+      /**
+       * No need for
+       * utest.jsrunner.Plugin.utestJsSettings
+       * see https://github.com/lihaoyi/utest/blob/master/jsPlugin/Plugin.scala
+       */
       testFrameworks += new TestFramework("utest.runner.Framework")
     )
 

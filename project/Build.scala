@@ -26,6 +26,7 @@ object ApplicationBuild extends Build {
         "org.webjars" % "jquery" % "1.10.2" / "jquery.js"
         //"com.lihaoyi" %% "upickle" % Versions.uPickle
       )
+      //utest.jsrunner.Plugin.utestJsSettings
     ).settings(
       version := Versions.app,
       scalaVersion := Versions.scala,
@@ -46,7 +47,7 @@ object ApplicationBuild extends Build {
 
 object Dependencies {
   val shared = Def.setting(Seq(
-    //"com.lihaoyi" %%% "upickle" % "0.2.4",
+    "com.lihaoyi" %% "utest" % Versions.uTest % "test",
     "com.lihaoyi" %% "upickle" % Versions.uPickle,
     "com.lihaoyi" %% "utest" % Versions.uTest % "test"
   ))
@@ -73,6 +74,7 @@ object Dependencies {
     "com.lihaoyi" %%% "upickle" % Versions.uPickle,
     "com.lihaoyi" %%% "scalatags" % Versions.scalaTags,
     "com.lihaoyi" %%% "scalarx" % Versions.scalaRx
+    ,"com.lihaoyi" %%% "utest" % Versions.uTest % "test"
   ))
 }
 

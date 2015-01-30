@@ -28,7 +28,7 @@ package object todo {
 
   }
 
-  case class Task(id: Option[Long], var txt: String, var done: Boolean)
+  case class Task(id: Option[Long], var txt: String, var done: Boolean = false)
 
   sealed trait TaskEvent {
     //val taskId: Long
@@ -51,6 +51,8 @@ package object todo {
 
       record(TaskCreated(task))
     }
+
+    def size : Int = tasks.size
 
     def countLeftToComplete : Int = tasks.count( t => !t.done)
 

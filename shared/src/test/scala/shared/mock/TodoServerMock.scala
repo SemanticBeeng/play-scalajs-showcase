@@ -1,9 +1,10 @@
-package mock
+package shared.mock
 
 import shared.domain.todo._
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+//import scala.concurrent.ExecutionContext.Implicits.global
+import utest.ExecutionContext.RunNow
 
 /**
  *

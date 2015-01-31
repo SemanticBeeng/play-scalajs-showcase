@@ -51,8 +51,8 @@ object ApplicationBuild extends Build {
 
 object Dependencies {
   val shared = Def.setting(Seq(
-    "com.lihaoyi" %% "utest" % Versions.uTest % "test",
     "com.lihaoyi" %% "upickle" % Versions.uPickle,
+    // @todo: uPickle must not be last...?? gives compile errors "upickle cannot read"
     "com.lihaoyi" %% "utest" % Versions.uTest % "test"
   ))
 

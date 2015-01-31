@@ -4,6 +4,7 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import shared.domain.todo._
+import shared.mock.TodoServerMock
 
 //import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -13,7 +14,7 @@ import shared.domain.todo._
 @RunWith(classOf[JUnitRunner])
 class BusinessSpec extends Specification {
 
-  val todoApi:TodoIntf = null
+  val todoApi:TodoIntf = new TodoServerMock
 
   "A plan" should {
 
@@ -31,7 +32,7 @@ class BusinessSpec extends Specification {
         TaskCompleted(1L)))
 
       plan.countLeftToComplete should be_==(0)
-      //todoApi.clearCompletedTasks
+      todoApi.clearCompletedTasks
 
       plan.countLeftToComplete should be_==(0)
     }
@@ -51,7 +52,7 @@ class BusinessSpec extends Specification {
         TaskCompleted(1L)))
 
       plan.countLeftToComplete should be_==(1)
-      //todoApi.clearCompletedTasks
+      todoApi.clearCompletedTasks
 
       plan.countLeftToComplete should be_==(1)
     }

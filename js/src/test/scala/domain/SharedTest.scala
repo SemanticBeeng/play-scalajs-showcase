@@ -18,7 +18,7 @@ object SharedTest extends TestSuite {
     "A plan can have a task" - {
       
       taskPlan.loadFromHistory(Seq(
-        TaskCreated(new Task(Some(1L), "Do this")),
+        TaskScheduled(new Task(Some(1L), "Do this")),
         TaskRedefined(1L, "Do this other thing"),
         TaskCompleted(1L)))
 
@@ -33,10 +33,10 @@ object SharedTest extends TestSuite {
     "A plan can have two tasks" - {
       val plan = new Plan
       taskPlan.loadFromHistory(Seq(
-        TaskCreated(new Task(Some(1L), "Do this")),
+        TaskScheduled(new Task(Some(1L), "Do this")),
         TaskRedefined(1L, "Do this other thing"),
         TaskCompleted(2L),
-        TaskCreated(new Task(Some(2L), "Do this honey"))))
+        TaskScheduled(new Task(Some(2L), "Do this honey"))))
 
       assert(taskPlan.size == 2)
 

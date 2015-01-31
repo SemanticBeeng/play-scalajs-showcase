@@ -37,7 +37,7 @@ package object todo {
   }
 
   // Event protocol
-  case class TaskCreated(task: Task) extends TaskEvent
+  case class TaskScheduled(task: Task) extends TaskEvent
 
   case class TaskRedefined(taskId: Long, txt: String) extends TaskEvent
 
@@ -45,7 +45,7 @@ package object todo {
 
   case class TaskCompleted(taskId: Long) extends TaskEvent
 
-  case class TaskDeleted(taskId: Long) extends TaskEvent
+  case class TaskCancelled(taskId: Long) extends TaskEvent
 
   /**
    * DDD Aggregate
@@ -69,7 +69,7 @@ package object todo {
      */
     def newTask(task: Task) {
 
-      record(TaskCreated(task))
+      record(TaskScheduled(task))
     }
 
     /**
@@ -95,10 +95,10 @@ package object todo {
       //@todo I could do this in applyEvent but did not want to mix calls to record in applyEvent
       tasks.foreach { task =>
         if (task.done) {
-          record(TaskDeleted(task.id.get))
+          record(TaskCancelled(task.id.get))
         }
       }
-      size - sizeBefore
+      sizeBefore - size
     }
 
     /**
@@ -106,7 +106,7 @@ package object todo {
      */
     protected def applyEvent = {
 
-      case event: TaskCreated =>
+      case event: TaskScheduled =>
         tasks = event.task +: tasks
 
       case event: TaskRedefined =>
@@ -144,7 +144,7 @@ package object todo {
       //        updatedTask.get.done = true
       //      //tasks = tasks.updated(pos, updatedTask)
 
-      case event: TaskDeleted =>
+      case event: TaskCancelled =>
 
         tasks = tasks.dropWhile(task => task.id.get == event.taskId)
 

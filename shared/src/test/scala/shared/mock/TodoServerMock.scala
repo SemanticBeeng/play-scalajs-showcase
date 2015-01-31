@@ -39,14 +39,18 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def redefine(task: Task): Future[Boolean] = Future {
-    true
+  override def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]] = Future {
+
+    plan.record(TaskRedefined(taskId, txt))
+    val history = plan.uncommittedEvents
+    plan.markCommitted
+    history
   }
 
   /**
    *
    */
-  override def complete(taskId: Long): Future[Iterable[TaskEvent]] = Future{
+  override def complete(taskId: Long): Future[Iterable[TaskEvent]] = Future {
 
     plan.markCompleted(taskId)
     val history = plan.uncommittedEvents

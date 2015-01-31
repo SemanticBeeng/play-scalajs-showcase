@@ -54,13 +54,13 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def redefine(task: Task): Future[Boolean] = {
+      override def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]] = {
 
-        val json = s"""{"txt": "${task.txt}", "done": ${task.done}}"""
+        val json = s"""{"taskId": $taskId, "txt": "$txt"}"""
         //task.id.map{ id =>
-        Ajax.postAsJson(Routes.Todos.update(task.id.get), json).map { r =>
+        Ajax.postAsJson(Routes.Todos.update(taskId), json).map { r =>
 
-          read[Boolean](r.responseText)
+          read[Iterable[TaskEvent]](r.responseText)
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
@@ -167,8 +167,8 @@ import scala.scalajs.js.Dynamic.{global => g}
      *
      */
     def update(task: Task) = {
-
-      TodoClient.redefine(task).onComplete {
+      //@todo implement
+      TodoClient.redefine(task.id.get, task.txt).onComplete {
 
         case Success(_) =>
           val pos = tasks().indexWhere(t => t.id == task.id)

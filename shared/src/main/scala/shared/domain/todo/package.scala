@@ -20,7 +20,7 @@ package object todo {
 
     def scheduleNew(txt: String, done: Boolean = false): Future[Either[Iterable[TaskEvent], TodoBusinessException]]
 
-    def redefine(task: Task): Future[Boolean]
+    def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]]
 
     def complete(taskId: Long): Future[Iterable[TaskEvent]]
 

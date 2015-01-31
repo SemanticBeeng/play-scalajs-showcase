@@ -41,6 +41,8 @@ package object todo {
 
   case class TaskRedefined(taskId: Long, txt: String) extends TaskEvent
 
+  case class ClearCompleted() extends TaskEvent
+
   case class TaskCompleted(taskId: Long) extends TaskEvent
 
   case class TaskDeleted(taskId: Long) extends TaskEvent
@@ -49,12 +51,8 @@ package object todo {
    * DDD Aggregate
    */
   class Plan extends AggregateRoot[TaskEvent] {
+
     var tasks = List.empty[Task]
-
-    def newTask(task: Task) {
-
-      record(TaskCreated(task))
-    }
 
     /**
      *
@@ -66,13 +64,25 @@ package object todo {
      */
     def countLeftToComplete = tasks.count(t => !t.done)
 
+    /**
+     *
+     */
+    def newTask(task: Task) {
+
+      record(TaskCreated(task))
+    }
+
+    /**
+     *
+     */
     def markCompleted(taskId: Long) = {
-      //      tasks.foreach{ t =>
-      //        if(t.id.get == taskId) {
-      //          t.done = true
-      //        }
-      //      }
+
       record(TaskCompleted(taskId))
+//      tasks.foreach { task =>
+//        if (task.id.get == taskId) {
+//          record(TaskCompleted(task.id.get))
+//        }
+//      }
     }
 
     /**
@@ -80,13 +90,15 @@ package object todo {
      */
     def clearCompletedTasks: Int = {
 
-      tasks.foldLeft[Int](0) { case (c, task) =>
+      val sizeBefore = size
+      record(ClearCompleted())
+      //@todo I could do this in applyEvent but did not want to mix calls to record in applyEvent
+      tasks.foreach { task =>
         if (task.done) {
           record(TaskDeleted(task.id.get))
-          c + 1
         }
-        else c
       }
+      size - sizeBefore
     }
 
     /**
@@ -99,9 +111,9 @@ package object todo {
 
       case event: TaskRedefined =>
 
-        tasks.foreach { t =>
-          if (t.id.get == event.taskId) {
-            t.txt = event.txt
+        tasks.foreach { task =>
+          if (task.id.get == event.taskId) {
+            task.txt = event.txt
           }
         }
       //        val pos = tasks.indexWhere(t => t.id.get == event.taskId)
@@ -109,11 +121,22 @@ package object todo {
       //        updatedTask.get.txt = event.txt
       //      //tasks = tasks.updated(pos, updatedTask)
 
+      case event: ClearCompleted =>
+
+        Nil
+      //        tasks.foldLeft[Int](0) { case (c, task) =>
+      //          if (task.done) {
+      //            record(TaskDeleted(task.id.get))
+      //            c + 1
+      //          }
+      //          else c
+      //        }
+
       case event: TaskCompleted =>
 
-        tasks.foreach { t =>
-          if (t.id.get == event.taskId) {
-            t.done = true
+        tasks.foreach { task =>
+          if (task.id.get == event.taskId) {
+            task.done = true
           }
         }
       //        val pos = tasks.indexWhere(t => t.id.get == event.taskId)
@@ -123,8 +146,8 @@ package object todo {
 
       case event: TaskDeleted =>
 
-        val pos = tasks.indexWhere(t => t.id.get == event.taskId)
-        tasks.drop(pos)
+        tasks = tasks.dropWhile(task => task.id.get == event.taskId)
+
 
     }
   }

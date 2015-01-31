@@ -41,7 +41,7 @@ class BusinessSpec extends Specification {
           plan.loadFromHistory(history.seq)
 
           plan.countLeftToComplete should be_==(0)
-          plan.size should be_==(1)
+          plan.size should be_==(0)
 
         }
       }

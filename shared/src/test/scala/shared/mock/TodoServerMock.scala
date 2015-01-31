@@ -12,17 +12,24 @@ import utest.ExecutionContext.RunNow
 /**
  *
  */
-class TodoServerMock extends TodoIntf {
+class TodoServerMock extends TaskManagement {
 
   val plan = new Plan
   var nextId = 1L
 
-  override def all: Future[List[Task]] = Future {
+  override def allScheduled: Future[List[Task]] = Future {
     plan.tasks.toList
   }
 
-  override def update(task: Task): Future[Boolean] = Future {
+  override def redefine(task: Task): Future[Boolean] = Future {
     true
+  }
+
+  override def complete(taskId: Long): Future[Iterable[TaskEvent]] = Future{
+    plan.markCompleted(taskId)
+    val history = plan.uncommittedEvents
+    plan.markCommitted
+    history
   }
 
   override def clearCompletedTasks: Future[Iterable[TaskEvent]] = Future {
@@ -33,11 +40,11 @@ class TodoServerMock extends TodoIntf {
     history
   }
 
-  override def delete(id: Long): Future[Boolean] = Future {
+  override def cancel(id: Long): Future[Boolean] = Future {
     true
   }
 
-  override def create(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = Future {
+  override def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = Future {
     plan.record(TaskCreated(new Task(Option(nextId), txt, done)))
     val history = plan.uncommittedEvents
     plan.markCommitted

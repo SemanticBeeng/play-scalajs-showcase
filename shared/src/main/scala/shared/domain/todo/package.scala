@@ -2,7 +2,7 @@ package shared.domain
 
 import shared.domain.immutabledomain.AggregateRoot
 
-import scala.collection.{Iterable, mutable}
+import scala.collection.{Iterable}
 import scala.concurrent.Future
 
 /**
@@ -14,15 +14,17 @@ package object todo {
    * Shared business API between "*jvm" and "*js" sub projects.
    * This approach is designed to enable writing of business logic in a way that is transparent to the layer and to execute such business logic on any tier as appropriate. This is necessary because business logic cross cuts the layers : client, server, data access layer, UI, etc
    */
-  trait TodoIntf {
+  trait TaskManagement {
 
-    def all: Future[List[Task]]
+    def allScheduled: Future[List[Task]]
 
-    def create(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]]
+    def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]]
 
-    def update(task: Task): Future[Boolean]
+    def redefine(task: Task): Future[Boolean]
 
-    def delete(id: Long): Future[Boolean]
+    def complete(taskId: Long): Future[Iterable[TaskEvent]]
+
+    def cancel(taskId: Long): Future[Boolean]
 
     def clearCompletedTasks: Future[Iterable[TaskEvent]]
 
@@ -47,7 +49,7 @@ package object todo {
    * DDD Aggregate
    */
   class Plan extends AggregateRoot[TaskEvent] {
-    var tasks: mutable.MutableList[Task] = mutable.MutableList.empty[Task]
+    var tasks = List.empty[Task]
 
     def newTask(task: Task) {
 
@@ -62,7 +64,16 @@ package object todo {
     /**
      *
      */
-    def countLeftToComplete: Int = tasks.count(t => !t.done)
+    def countLeftToComplete = tasks.count(t => !t.done)
+
+    def markCompleted(taskId: Long) = {
+      //      tasks.foreach{ t =>
+      //        if(t.id.get == taskId) {
+      //          t.done = true
+      //        }
+      //      }
+      record(TaskCompleted(taskId))
+    }
 
     /**
      *
@@ -88,17 +99,27 @@ package object todo {
 
       case event: TaskRedefined =>
 
-        val pos = tasks.indexWhere(t => t.id.get == event.taskId)
-        val updatedTask: Option[Task] = tasks.get(pos)
-        updatedTask.get.txt = event.txt
-      //tasks = tasks.updated(pos, updatedTask)
+        tasks.foreach { t =>
+          if (t.id.get == event.taskId) {
+            t.txt = event.txt
+          }
+        }
+      //        val pos = tasks.indexWhere(t => t.id.get == event.taskId)
+      //        val updatedTask: Option[Task] = tasks.get(pos)
+      //        updatedTask.get.txt = event.txt
+      //      //tasks = tasks.updated(pos, updatedTask)
 
       case event: TaskCompleted =>
 
-        val pos = tasks.indexWhere(t => t.id.get == event.taskId)
-        val updatedTask: Option[Task] = tasks.get(pos)
-        updatedTask.get.done = true
-      //tasks = tasks.updated(pos, updatedTask)
+        tasks.foreach { t =>
+          if (t.id.get == event.taskId) {
+            t.done = true
+          }
+        }
+      //        val pos = tasks.indexWhere(t => t.id.get == event.taskId)
+      //        val updatedTask: Option[Task] = tasks.get(pos)
+      //        updatedTask.get.done = true
+      //      //tasks = tasks.updated(pos, updatedTask)
 
       case event: TaskDeleted =>
 

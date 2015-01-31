@@ -6,6 +6,7 @@ import rx._
 import shared.config.Routes
 import shared.domain.todo._
 
+import scala.collection.Iterable
 import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.annotation.JSExport
@@ -28,16 +29,16 @@ object TodoJS {
 
 import scala.scalajs.js.Dynamic.{global => g}
 
-    object TodoClient extends TodoIntf {
+    object TodoClient extends TaskManagement {
 
-      def all: Future[List[Task]] = {
+      def allScheduled: Future[List[Task]] = {
         Future(Model.tasks())
       }
 
       /**
        *
        */
-      override def create(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = {
+      override def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = {
 
         val json = s"""{"txt": "${txt}", "done": ${done}}"""
         Ajax.postAsJson(Routes.Todos.create, json).map { r =>
@@ -53,7 +54,7 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def update(task: Task): Future[Boolean] = {
+      override def redefine(task: Task): Future[Boolean] = {
 
         val json = s"""{"txt": "${task.txt}", "done": ${task.done}}"""
         //task.id.map{ id =>
@@ -70,7 +71,22 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def delete(id: Long): Future[Boolean] = {
+      override def complete(taskId: Long): Future[Iterable[TaskEvent]] = {
+
+        Ajax.postAsJson(Routes.Todos.complete(taskId)).map { r =>
+          //@todo implement
+          read[Iterable[TaskEvent]](r.responseText)
+        }.recover {
+          // Trigger client side system exceptions
+          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
+          case e1 => throw new TodoSystemException(e1.toString)
+        }
+      }
+
+      /**
+       *
+       */
+      override def cancel(id: Long): Future[Boolean] = {
         Ajax.delete(Routes.Todos.delete(id)).map { r =>
 
           read[Boolean](r.responseText)
@@ -127,14 +143,14 @@ import scala.scalajs.js.Dynamic.{global => g}
     /**
      *
      */
-    def all: Future[List[Task]] = TodoClient.all
+    def all: Future[List[Task]] = TodoClient.allScheduled
 
     /**
      *
      */
     def create(txt: String, done: Boolean = false) = {
 
-      TodoClient.create(txt, done).onComplete {
+      TodoClient.scheduleNew(txt, done).onComplete {
 
         case Success(result) =>
           if (result.isLeft) {
@@ -152,7 +168,7 @@ import scala.scalajs.js.Dynamic.{global => g}
      */
     def update(task: Task) = {
 
-      TodoClient.update(task).onComplete {
+      TodoClient.redefine(task).onComplete {
 
         case Success(_) =>
           val pos = tasks().indexWhere(t => t.id == task.id)
@@ -168,7 +184,7 @@ import scala.scalajs.js.Dynamic.{global => g}
      */
     def delete(idOp: Option[Long]) = {
       idOp.map { id =>
-        TodoClient.delete(id).onComplete {
+        TodoClient.cancel(id).onComplete {
 
           case Success(_) =>
             tasks() = tasks().filter(_.id != idOp)

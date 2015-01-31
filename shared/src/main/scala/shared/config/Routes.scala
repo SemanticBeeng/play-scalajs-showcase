@@ -6,6 +6,7 @@ object Routes {
     val base = "/todos"
     def all = base + "/all"
     def create = base + "/create"
+    def complete(id: Long) = base + s"/complete/$id" //@todo implement
     def update(id: Long) = base + s"/update/$id"
     def delete(id: Long) = base + s"/delete/$id"
     def clear = base + "/clear"

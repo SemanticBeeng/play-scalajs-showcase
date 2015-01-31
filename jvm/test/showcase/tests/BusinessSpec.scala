@@ -14,7 +14,7 @@ import shared.mock.TodoServerMock
 @RunWith(classOf[JUnitRunner])
 class BusinessSpec extends Specification {
 
-  val todoApi: TodoIntf = new TodoServerMock
+  val todoApi: TaskManagement = new TodoServerMock
 
   "A plan" should {
 
@@ -28,13 +28,17 @@ class BusinessSpec extends Specification {
       plan.countLeftToComplete should be_==(1)
       plan.markCommitted
 
-      plan.loadFromHistory(Seq(
-        TaskCompleted(1L)))
+      todoApi.complete(1L) onComplete { history =>
+        plan.loadFromHistory(history.get)
+        true
+      }
+//      plan.loadFromHistory(Seq(
+//        TaskCompleted(1L)))
 
       plan.countLeftToComplete should be_==(0)
       todoApi.clearCompletedTasks.foreach { history =>
 
-        plan.loadFromHistory(history)
+        plan.loadFromHistory(history.seq)
 
         plan.countLeftToComplete should be_==(0)
         plan.size should be_==(1)

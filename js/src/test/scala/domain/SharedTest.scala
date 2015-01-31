@@ -12,7 +12,7 @@ object SharedTest extends TestSuite {
 
   def tests = TestSuite {
 
-    val todoApi:TodoIntf = new TodoServerMock
+    val todoApi:TaskManagement = new TodoServerMock
 
     "A plan can have a task" - {
       val plan = new Plan

@@ -27,6 +27,9 @@ trait TaskStore {
 
   def create(txt: String, done: Boolean): Future[Task]
 
+  //@todo implement
+  //def find(l: Long) = Future[Task]
+
   def update(task: Task): Future[Boolean]
 
   def delete(ids: Long*): Future[Boolean]

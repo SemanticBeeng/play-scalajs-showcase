@@ -16,19 +16,19 @@ import scala.concurrent.Future
 /**
  *
  */
-object TodoServer extends TodoIntf {
+object TodoServer extends TaskManagement {
 
   /**
    *
    */
-  override def all: Future[List[Task]] = {
+  override def allScheduled: Future[List[Task]] = {
     TaskModel.store.all
   }
 
   /**
    *
    */
-  override def create(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = {
+  override def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = {
 
     TaskModel.store.create(txt, done).map { task =>
       null //Left(task) @todo
@@ -42,14 +42,23 @@ object TodoServer extends TodoIntf {
   /**
    *
    */
-  override def update(task: Task): Future[Boolean] = {
+  override def redefine(task: Task): Future[Boolean] = {
     TaskModel.store.update(task)
   }
 
   /**
    *
    */
-  override def delete(id: Long): Future[Boolean] = {
+  override def complete(taskId: Long): Future[Iterable[TaskEvent]] = {
+    val task = null //@todo implement TaskModel.store.find(taskId)
+    TaskModel.store.update(task)
+    null
+  }
+
+  /**
+   *
+   */
+  override def cancel(id: Long): Future[Boolean] = {
     TaskModel.store.delete(id)
   }
 
@@ -84,7 +93,7 @@ object TodoController extends Controller {
    */
   def all = Action.async { implicit request =>
     // @nick Delegate to implementation of shared API
-    TodoServer.all.map { r =>
+    TodoServer.allScheduled.map { r =>
       Ok(write(r))
     }.recover {
       case err => InternalServerError(err.getMessage)
@@ -98,7 +107,7 @@ object TodoController extends Controller {
     val fn = (txt: String, done: Boolean) =>
 
       // @nick Delegate to implementation of shared API
-      TodoServer.create(txt, done).map { r =>
+      TodoServer.scheduleNew(txt, done).map { r =>
         Ok(write(r))
       }
     executeRequest(fn)
@@ -111,7 +120,7 @@ object TodoController extends Controller {
     val fn = (txt: String, done: Boolean) =>
 
       // @nick Delegate to implementation of shared API
-      TodoServer.update(Task(Some(id), txt, done)).map { r =>
+      TodoServer.redefine(Task(Some(id), txt, done)).map { r =>
         if (r)
           Ok(write(r))
         else
@@ -128,7 +137,7 @@ object TodoController extends Controller {
   def delete(id: Long) = Action.async { implicit request =>
 
     // @nick Delegate to implementation of shared API
-    TodoServer.delete(id).map { r =>
+    TodoServer.cancel(id).map { r =>
       if (r)
         Ok(write(r))
       else

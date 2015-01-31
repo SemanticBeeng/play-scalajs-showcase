@@ -26,23 +26,23 @@ object SharedTest extends TestSuite {
 
       todoApi.clearCompletedTasks
 
-      //assert(plan.countLeftToComplete == 0)
+      assert(plan.countLeftToComplete == 0)
     }
 
-//    "A plan can have two tasks" - {
-//      val plan = new Plan
-//      plan.loadFromHistory(Seq(
-//        TaskCreated(new Task(Some(1L), "Do this")),
-//        TaskRedefined(1L, "Do this other thing"),
-//        TaskCompleted(2L),
-//        TaskCreated(new Task(Some(2L), "Do this honey"))))
-//
-//      assert(plan.size == 2)
-//
-//      todoApi.clearCompletedTasks
-//
-//      //assert(plan.countLeftToComplete == 1)
-//    }
+    "A plan can have two tasks" - {
+      val plan = new Plan
+      plan.loadFromHistory(Seq(
+        TaskCreated(new Task(Some(1L), "Do this")),
+        TaskRedefined(1L, "Do this other thing"),
+        TaskCompleted(2L),
+        TaskCreated(new Task(Some(2L), "Do this honey"))))
+
+      assert(plan.size == 2)
+
+      todoApi.clearCompletedTasks
+
+      assert(plan.countLeftToComplete == 1)
+    }
   }
 
 

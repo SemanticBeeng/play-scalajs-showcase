@@ -32,14 +32,22 @@ class BusinessSpec extends Specification {
         TaskCompleted(1L)))
 
       plan.countLeftToComplete should be_==(0)
-      todoApi.clearCompletedTasks.map { history =>
+      todoApi.clearCompletedTasks.foreach { history =>
 
         plan.loadFromHistory(history)
 
         plan.countLeftToComplete should be_==(0)
-        plan.size should be_==(0)
+        plan.size should be_==(1)
       }
       success
+
+//      }.recover {
+//
+//        case _ => failure("Failed with ")
+//        failure("Unknown failure executing async call")
+//      }.onComplete { r =>
+//        failure
+//      }
     }
 
     "accept two tasks and complete them separately" in {
@@ -57,19 +65,20 @@ class BusinessSpec extends Specification {
         TaskCompleted(1L)))
 
       plan.countLeftToComplete should be_==(1)
-      todoApi.clearCompletedTasks
-      todoApi.clearCompletedTasks.map { history =>
+
+      todoApi.clearCompletedTasks.foreach { history =>
 
         plan.loadFromHistory(history)
 
         plan.countLeftToComplete should be_==(1)
-        plan.size should be_==(12)
-        success
-      }.recover {
-
-        case _ => failure("dd")
-          failure("ee")
+        plan.size should be_==(1)
       }
+      success
+//        .recover {
+//
+//        case e => failure("Failed with " + e.getMessage)
+//        failure("Unknown failure executing async call")
+//      }
     }
   }
 }

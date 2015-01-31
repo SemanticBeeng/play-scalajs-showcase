@@ -14,7 +14,7 @@ import shared.mock.TodoServerMock
 @RunWith(classOf[JUnitRunner])
 class BusinessSpec extends Specification {
 
-  val todoApi:TodoIntf = new TodoServerMock
+  val todoApi: TodoIntf = new TodoServerMock
 
   "A plan" should {
 
@@ -32,9 +32,14 @@ class BusinessSpec extends Specification {
         TaskCompleted(1L)))
 
       plan.countLeftToComplete should be_==(0)
-      todoApi.clearCompletedTasks
+      todoApi.clearCompletedTasks.map { history =>
 
-      plan.countLeftToComplete should be_==(0)
+        plan.loadFromHistory(history)
+
+        plan.countLeftToComplete should be_==(0)
+        plan.size should be_==(0)
+      }
+      success
     }
 
     "accept two tasks and complete them separately" in {
@@ -53,8 +58,18 @@ class BusinessSpec extends Specification {
 
       plan.countLeftToComplete should be_==(1)
       todoApi.clearCompletedTasks
+      todoApi.clearCompletedTasks.map { history =>
 
-      plan.countLeftToComplete should be_==(1)
+        plan.loadFromHistory(history)
+
+        plan.countLeftToComplete should be_==(1)
+        plan.size should be_==(12)
+        success
+      }.recover {
+
+        case _ => failure("dd")
+          failure("ee")
+      }
     }
   }
 }

@@ -24,7 +24,7 @@ package object todo {
 
     def delete(id: Long): Future[Boolean]
 
-    def clearCompletedTasks: Future[Boolean]
+    def clearCompletedTasks: Future[Iterable[TaskEvent]]
 
   }
 
@@ -36,26 +36,51 @@ package object todo {
 
   // Event protocol
   case class TaskCreated(task: Task) extends TaskEvent
+
   case class TaskRedefined(taskId: Long, txt: String) extends TaskEvent
+
   case class TaskCompleted(taskId: Long) extends TaskEvent
+
   case class TaskDeleted(taskId: Long) extends TaskEvent
 
   /**
    * DDD Aggregate
    */
   class Plan extends AggregateRoot[TaskEvent] {
-
-    var tasks:mutable.MutableList[Task] = mutable.MutableList.empty[Task]
+    var tasks: mutable.MutableList[Task] = mutable.MutableList.empty[Task]
 
     def newTask(task: Task) {
 
       record(TaskCreated(task))
     }
 
-    def size : Int = tasks.size
+    /**
+     *
+     */
+    def size: Int = tasks.size
 
-    def countLeftToComplete : Int = tasks.count( t => !t.done)
+    /**
+     *
+     */
+    def countLeftToComplete: Int = tasks.count(t => !t.done)
 
+    /**
+     *
+     */
+    def clearCompletedTasks: Int = {
+
+      tasks.foldLeft[Int](0) { case (c, task) =>
+        if (task.done) {
+          record(TaskDeleted(task.id.get))
+          c + 1
+        }
+        else c
+      }
+    }
+
+    /**
+     *
+     */
     protected def applyEvent = {
 
       case event: TaskCreated =>
@@ -66,7 +91,7 @@ package object todo {
         val pos = tasks.indexWhere(t => t.id.get == event.taskId)
         val updatedTask: Option[Task] = tasks.get(pos)
         updatedTask.get.txt = event.txt
-        //tasks = tasks.updated(pos, updatedTask)
+      //tasks = tasks.updated(pos, updatedTask)
 
       case event: TaskCompleted =>
 

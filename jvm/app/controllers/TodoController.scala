@@ -10,6 +10,7 @@ import play.api.mvc._
 import shared.domain.todo._
 import upickle._
 
+import scala.collection.Iterable
 import scala.concurrent.Future
 
 /**
@@ -55,10 +56,12 @@ object TodoServer extends TodoIntf {
   /**
    *
    */
-  override def clearCompletedTasks: Future[Boolean] = {
-    TaskModel.store.clearCompletedTasks.map { r =>
-      r > 0
-    }
+  override def clearCompletedTasks: Future[Iterable[TaskEvent]] = {
+    //@todo implement
+    null
+//    TaskModel.store.clearCompletedTasks.map { r =>
+//      r > 0
+//    }
   }
 }
 

@@ -2,8 +2,11 @@ package shared.mock
 
 import shared.domain.todo._
 
+import scala.collection.Iterable
 import scala.concurrent.Future
+
 //import scala.concurrent.ExecutionContext.Implicits.global
+
 import utest.ExecutionContext.RunNow
 
 /**
@@ -22,9 +25,12 @@ class TodoServerMock extends TodoIntf {
     true
   }
 
-  override def clearCompletedTasks: Future[Boolean] = Future {
+  override def clearCompletedTasks: Future[Iterable[TaskEvent]] = Future {
 
-    true
+    plan.clearCompletedTasks
+    val history = plan.uncommittedEvents
+    plan.markCommitted
+    history
   }
 
   override def delete(id: Long): Future[Boolean] = Future {

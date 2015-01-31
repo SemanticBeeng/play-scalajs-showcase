@@ -84,10 +84,10 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def clearCompletedTasks: Future[Boolean] = {
+      override def clearCompletedTasks: Future[Iterable[TaskEvent]] = {
         Ajax.postAsForm(Routes.Todos.clear).map { r =>
 
-          read[Boolean](r.responseText)
+          read[Iterable[TaskEvent]](r.responseText)
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
@@ -185,10 +185,14 @@ import scala.scalajs.js.Dynamic.{global => g}
     def clearCompletedTasks() = {
       TodoClient.clearCompletedTasks.onComplete {
 
-        case Success(true) =>
-          tasks() = tasks().filter(!_.done)
-
-        case Success(false) => dom.alert("clearCompletedTasks failed")
+        case Success(history) =>
+          if (history == null) {
+            dom.alert("clearCompletedTasks failed")
+          } else {
+            //@todo implement plan.loadFromHistory(history)
+            tasks() = tasks().filter(!_.done)
+          }
+        //case Success(null) => dom.alert("clearCompletedTasks failed")
         case Failure(e) => dom.alert("clearCompletedTasks failed: " + e.getMessage)
       }
     }

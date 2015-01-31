@@ -14,7 +14,7 @@ import utest.ExecutionContext.RunNow
  */
 class TodoServerMock extends TaskManagement {
 
-  val plan = new Plan
+  var plan = new Plan
   var nextId = 1L
 
   override def allScheduled: Future[List[Task]] = Future {

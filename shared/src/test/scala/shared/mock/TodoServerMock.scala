@@ -12,7 +12,7 @@ import utest.ExecutionContext.RunNow
 /**
  *
  */
-class TodoServerMock extends TaskManagement {
+class TodoServerMock() extends TaskManagement {
 
   var plan = new Plan
   var nextId = 1L

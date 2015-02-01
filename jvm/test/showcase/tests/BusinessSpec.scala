@@ -76,7 +76,9 @@ class BusinessSpec extends Specification {
      */
     "schedule one task and complete it remotely" in new PlanScope {
 
-      taskMgmt.scheduleNew("Do this").andThen { case r =>
+      val scheduleNew = taskMgmt.scheduleNew("Do this")
+
+      scheduleNew.andThen { case r =>
 
         val returnVal: ReturnVal[Long] = r.get
         returnVal.v.isLeft should beTrue
@@ -99,16 +101,16 @@ class BusinessSpec extends Specification {
 
           taskPlan.countLeftToComplete should be_==(0)
 
-        } andThen { case _ =>
+        }
+      } andThen { case _ =>
 
-          taskMgmt.clearCompletedTasks andThen { case r =>
+        taskMgmt.clearCompletedTasks andThen { case r =>
 
-            val events: Iterable[TaskEvent] = r.get
-            taskPlan.loadFromHistory(events)
+          val events: Iterable[TaskEvent] = r.get
+          taskPlan.loadFromHistory(events)
 
-            taskPlan.countLeftToComplete should be_==(0)
-            taskPlan.size should be_==(0)
-          }
+          taskPlan.countLeftToComplete should be_==(0)
+          taskPlan.size should be_==(0)
         }
       }
     }
@@ -118,9 +120,10 @@ class BusinessSpec extends Specification {
      */
     "schedule two tasks and complete them separately" in new PlanScope {
 
+      val scheduleNew = taskMgmt.scheduleNew("Do this")
       var task1: Option[Task] = None
 
-      taskMgmt.scheduleNew("Do this") andThen { case r =>
+      scheduleNew andThen { case r =>
 
         val returnVal: ReturnVal[Long] = r.get
         returnVal.v.isLeft should beTrue
@@ -153,17 +156,17 @@ class BusinessSpec extends Specification {
             taskPlan.loadFromHistory(history)
 
             taskPlan.countLeftToComplete should be_==(0)
+          }
 
-          } andThen { case _ =>
+        } andThen { case _ =>
 
-            taskMgmt.clearCompletedTasks andThen { case r =>
+          taskMgmt.clearCompletedTasks andThen { case r =>
 
-              val events: Iterable[TaskEvent] = r.get
-              taskPlan.loadFromHistory(events)
+            val events: Iterable[TaskEvent] = r.get
+            taskPlan.loadFromHistory(events)
 
-              taskPlan.countLeftToComplete should be_==(0)
-              taskPlan.size should be_==(0)
-            }
+            taskPlan.countLeftToComplete should be_==(0)
+            taskPlan.size should be_==(0)
           }
         }
       }

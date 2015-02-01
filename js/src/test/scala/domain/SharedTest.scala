@@ -31,11 +31,11 @@ object SharedTest extends TestSuite {
     }
 
     "A plan can have two tasks" - {
-      val plan = new Plan
+
       taskPlan.loadFromHistory(Seq(
         TaskScheduled(new Task(Some(1L), "Do this")),
         TaskRedefined(1L, "Do this other thing"),
-        TaskCompleted(2L),
+        TaskCompleted(1L),
         TaskScheduled(new Task(Some(2L), "Do this honey"))))
 
       assert(taskPlan.size == 2)

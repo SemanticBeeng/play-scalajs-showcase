@@ -18,7 +18,7 @@ package object todo {
 
     def allScheduled: Future[List[Task]]
 
-    def scheduleNew(txt: String, done: Boolean = false): Future[Either[Iterable[TaskEvent], TodoBusinessException]]
+    def scheduleNew(txt: String, done: Boolean = false): Future[Either[Iterable[TaskEvent], TaskBusinessException]]
 
     def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]]
 
@@ -30,6 +30,8 @@ package object todo {
 
   }
 
+  case class ReturnVal[T] (v : T, events : Iterable[TaskEvent], e : Option[TaskBusinessException] = None)
+  
   case class Task(id: Option[Long], var txt: String, var done: Boolean = false)
 
   sealed trait TaskEvent
@@ -60,7 +62,12 @@ package object todo {
     /**
      *
      */
-    def countLeftToComplete = tasks.count(t => !t.done)
+    def countLeftToComplete: Int = tasks.count(t => !t.done)
+
+    /**
+     *
+     */
+    def findById(taskId: Long): Option[Task] = tasks.find(t => t.id.get == taskId)
 
     /**
      *
@@ -135,7 +142,7 @@ package object todo {
     override def toString = message
   }
 
-  case class TodoBusinessException(message: String) extends Exception(message) with TodoException
+  case class TaskBusinessException(message: String) extends Exception(message) with TodoException
 
   case class TodoSystemException(message: String) extends RuntimeException(message) with TodoException
 

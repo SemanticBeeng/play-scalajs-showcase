@@ -28,13 +28,13 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = {
+  override def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TaskBusinessException]] = {
 
     TaskModel.store.create(txt, done).map { task =>
       null //Left(task) @todo
     }.recover {
       // @todo Reconsider this approach
-      case e: InsufficientStorageException => return Future(Right(new TodoBusinessException(e.getMessage)))
+      case e: InsufficientStorageException => return Future(Right(new TaskBusinessException(e.getMessage)))
       case e: Throwable => throw new TodoSystemException(e.getMessage)
     }
   }

@@ -77,7 +77,7 @@ class BusinessSpec extends Specification {
 
       scheduleNew.andThen { case r =>
 
-        val eventsOrException: Either[Iterable[TaskEvent], TodoBusinessException] = r.get
+        val eventsOrException: Either[Iterable[TaskEvent], TaskBusinessException] = r.get
         eventsOrException.isLeft should beTrue
 
         taskPlan.loadFromHistory(eventsOrException.left.get)
@@ -90,8 +90,8 @@ class BusinessSpec extends Specification {
 
         taskMgmt.complete(taskOne) andThen { case r =>
 
-          val history = r.get
-          taskPlan.loadFromHistory(history)
+          val events = r.get
+          taskPlan.loadFromHistory(events)
 
           taskPlan.countLeftToComplete should be_==(0)
 
@@ -126,12 +126,14 @@ class BusinessSpec extends Specification {
 
       scheduleNew andThen { case r =>
 
-        val eventsOrException: Either[Iterable[TaskEvent], TodoBusinessException] = r.get
+        val eventsOrException: Either[Iterable[TaskEvent], TaskBusinessException] = r.get
         eventsOrException.isLeft should beTrue
 
         taskPlan.loadFromHistory(eventsOrException.left.get)
         taskPlan.size should be_==(1)
         taskPlan.countLeftToComplete should be_==(1)
+
+        assert(taskPlan.findById(taskOne).get.txt.equals("Do this"))
 
       } andThen { case _ =>
 
@@ -143,6 +145,7 @@ class BusinessSpec extends Specification {
           taskPlan.size should be_==(1)
           taskPlan.countLeftToComplete should be_==(1)
 
+          assert(taskPlan.tasks.head.txt.equals("Do this other thing"))
           //taskPlan.tasks.head.txt should be_==("Do this other thing")
 
         } andThen { case _ =>

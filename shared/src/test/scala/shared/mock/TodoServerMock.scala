@@ -27,7 +27,7 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TodoBusinessException]] = Future {
+  override def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TaskBusinessException]] = Future {
 
     plan.record(TaskScheduled(new Task(Option(nextId), txt, done)))
     val history = plan.uncommittedEvents

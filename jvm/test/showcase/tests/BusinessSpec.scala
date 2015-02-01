@@ -2,6 +2,7 @@ package showcase.tests
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
+import org.specs2.specification.Scope
 import org.specs2.runner.JUnitRunner
 import shared.domain.todo._
 import shared.mock.TodoServerMock
@@ -14,17 +15,19 @@ import shared.mock.TodoServerMock
 @RunWith(classOf[JUnitRunner])
 class BusinessSpec extends Specification {
 
-  val taskOne: Long = 1L
+  trait PlanScope extends Scope {
+    val taskOne: Long = 1L
 
-  val taskPlan = new Plan
-  val taskMgmt: TaskManagement = new TodoServerMock()
+    val taskPlan = new Plan
+    val taskMgmt: TaskManagement = new TodoServerMock()
+  }
 
   "I should be able to" should {
 
     /**
      *
      */
-    "schedule one task, redefine and complete it" in {
+    "schedule one task, redefine and complete it" in new PlanScope {
 
       taskPlan.loadFromHistory(Seq(
         TaskScheduled(new Task(Some(taskOne), "Do this")),
@@ -50,7 +53,7 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-    "schedule one task and cancel it" in {
+    "schedule one task and cancel it" in new PlanScope {
 
       taskPlan.loadFromHistory(Seq(
         TaskScheduled(new Task(Some(taskOne), "Do this"))))
@@ -71,7 +74,7 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-    "schedule one task and complete it remotely" in {
+    "schedule one task and complete it remotely" in new PlanScope {
 
       val scheduleNew = taskMgmt.scheduleNew("Do this")
 
@@ -85,6 +88,9 @@ class BusinessSpec extends Specification {
         taskPlan.size should be_==(1)
         taskPlan.countLeftToComplete should be_==(1)
         taskPlan.markCommitted
+
+        val task: Option[Task] = taskPlan.findById(returnVal.value)
+        task.get.txt shouldEqual "Do this"
 
       } andThen { case _ =>
 
@@ -120,64 +126,66 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-//    "schedule two tasks and complete them separately" in {
-//
-//      val scheduleNew = taskMgmt.scheduleNew("Do this")
-//
-//      scheduleNew andThen { case r =>
-//
-//        val returnVal: ReturnVal[Long] = r.get
-//        returnVal.v.isLeft should beTrue
-//
-//        taskPlan.loadFromHistory(returnVal.events)
-//        taskPlan.size should be_==(1)
-//        taskPlan.countLeftToComplete should be_==(1)
-//
-//        assert(taskPlan.findById(taskOne).get.txt.equals("Do this"))
-//
-//      } andThen { case _ =>
-//
-//        taskMgmt.redefine(taskPlan.tasks.head.id.get, "Do this other thing") andThen { case r =>
-//
-//          val history = r.get
-//          taskPlan.loadFromHistory(history)
-//
-//          taskPlan.size should be_==(1)
-//          taskPlan.countLeftToComplete should be_==(1)
-//
-//          assert(taskPlan.tasks.head.txt.equals("Do this other thing"))
-//          //taskPlan.tasks.head.txt should be_==("Do this other thing")
-//
-//        } andThen { case _ =>
-//
-//          taskMgmt.complete(taskOne) andThen { case r =>
-//
-//            val history = r.get
-//            taskPlan.loadFromHistory(history)
-//
-//            taskPlan.countLeftToComplete should be_==(0)
-//
-//          } andThen { case _ =>
-//
-//            taskMgmt.clearCompletedTasks andThen { case r =>
-//
-//              val events: Iterable[TaskEvent] = r.get
-//              taskPlan.loadFromHistory(events)
-//
-//              taskPlan.countLeftToComplete should be_==(0)
-//              taskPlan.size should be_==(0)
-//            }
-//          }
-//        }
-//      }
-//
-//      scheduleNew.onFailure {
-//        case t => println("An error has occurred: " + t.getMessage)
-//
-//          failure("An error has occurred: " + t.getMessage)
-//      }
-//      // @todo Does this mask any errors?
-//      success
-//    }
+    "schedule two tasks and complete them separately" in new PlanScope {
+
+      val scheduleNew = taskMgmt.scheduleNew("Do this")
+      var task1: Option[Task] = None
+
+      scheduleNew andThen { case r =>
+
+        val returnVal: ReturnVal[Long] = r.get
+        returnVal.v.isLeft should beTrue
+
+        taskPlan.loadFromHistory(returnVal.events)
+        taskPlan.size should be_==(1)
+        taskPlan.countLeftToComplete should be_==(1)
+
+        task1 = taskPlan.findById(returnVal.value)
+        task1.get.txt shouldEqual "Do this"
+
+      } andThen { case _ =>
+
+        taskMgmt.redefine(task1.get.id.get, "Do this other thing") andThen { case r =>
+
+          val history = r.get
+          taskPlan.loadFromHistory(history)
+
+          taskPlan.size should be_==(1)
+          taskPlan.countLeftToComplete should be_==(1)
+
+          assert(taskPlan.tasks.head.txt.equals("Do this other thing"))
+          //taskPlan.tasks.head.txt should be_==("Do this other thing")
+
+        } andThen { case _ =>
+
+          taskMgmt.complete(taskOne) andThen { case r =>
+
+            val history = r.get
+            taskPlan.loadFromHistory(history)
+
+            taskPlan.countLeftToComplete should be_==(0)
+
+          } andThen { case _ =>
+
+            taskMgmt.clearCompletedTasks andThen { case r =>
+
+              val events: Iterable[TaskEvent] = r.get
+              taskPlan.loadFromHistory(events)
+
+              taskPlan.countLeftToComplete should be_==(0)
+              taskPlan.size should be_==(0)
+            }
+          }
+        }
+      }
+
+      scheduleNew.onFailure {
+        case t => println("An error has occurred: " + t.getMessage)
+
+          failure("An error has occurred: " + t.getMessage)
+      }
+      // @todo Does this mask any errors?
+      success
+    }
   }
 }

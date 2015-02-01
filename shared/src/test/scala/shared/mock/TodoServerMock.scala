@@ -29,11 +29,12 @@ class TodoServerMock() extends TaskManagement {
    */
   override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[Long]] = Future {
 
-    plan.record(TaskScheduled(new Task(Option(nextId), txt, done)))
+    val task: Task = new Task(Option(nextId), txt, done)
+    plan.record(TaskScheduled(task))
     val history = plan.uncommittedEvents
     plan.markCommitted
     nextId = nextId + 1
-    ReturnVal(Left(nextId - 1), history)
+    ReturnVal(Left(task.id.get), history)
   }
 
   /**

@@ -120,9 +120,8 @@ class BusinessSpec extends Specification {
 
       var task1: Option[Task] = None
 
-      taskMgmt.scheduleNew("Do this") andThen { case r =>
+      taskMgmt.scheduleNew("Do this") map { returnVal =>
 
-        val returnVal: ReturnVal[Long] = r.get
         returnVal.v.isLeft should beTrue
 
         taskPlan.loadFromHistory(returnVal.events)
@@ -134,10 +133,9 @@ class BusinessSpec extends Specification {
 
       } andThen { case _ =>
 
-        taskMgmt.redefine(task1.get.id.get, "Do this other thing") andThen { case r =>
+        taskMgmt.redefine(task1.get.id.get, "Do this other thing") map { events =>
 
-          val history = r.get
-          taskPlan.loadFromHistory(history)
+          taskPlan.loadFromHistory(events)
 
           taskPlan.size should be_==(1)
           taskPlan.countLeftToComplete should be_==(1)
@@ -148,19 +146,17 @@ class BusinessSpec extends Specification {
         }
       } andThen { case _ =>
 
-        taskMgmt.complete(taskOne) andThen { case r =>
+        taskMgmt.complete(taskOne) map {  events =>
 
-          val history = r.get
-          taskPlan.loadFromHistory(history)
+          taskPlan.loadFromHistory(events)
 
           taskPlan.countLeftToComplete should be_==(0)
         }
 
       } andThen { case _ =>
 
-        taskMgmt.clearCompletedTasks andThen { case r =>
+        taskMgmt.clearCompletedTasks map { events =>
 
-          val events: Iterable[TaskEvent] = r.get
           taskPlan.loadFromHistory(events)
 
           taskPlan.countLeftToComplete should be_==(0)

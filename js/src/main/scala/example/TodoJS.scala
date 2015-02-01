@@ -38,12 +38,12 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def scheduleNew(txt: String, done: Boolean): Future[Either[Iterable[TaskEvent], TaskBusinessException]] = {
+      override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[Long]] = {
 
         val json = s"""{"txt": "${txt}", "done": ${done}}"""
         Ajax.postAsJson(Routes.Todos.create, json).map { r =>
 
-          read[Either[Iterable[TaskEvent], TaskBusinessException]](r.responseText)
+          read[ReturnVal[Long]](r.responseText)
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
@@ -153,11 +153,11 @@ import scala.scalajs.js.Dynamic.{global => g}
       TodoClient.scheduleNew(txt, done).onComplete {
 
         case Success(result) =>
-          if (result.isLeft) {
+          if (result.v.isLeft) {
             //@todo implement tasks() = result.left.get +: tasks()
           }
           else {
-            dom.alert(result.right.get.message)
+            dom.alert(result.ex.message)
           }
         case Failure(e) => dom.alert("create failed: " + e.getMessage)
       }

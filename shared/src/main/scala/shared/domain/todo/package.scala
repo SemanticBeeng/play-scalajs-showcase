@@ -2,8 +2,9 @@ package shared.domain
 
 import shared.domain.immutabledomain.AggregateRoot
 
-import scala.collection.{Iterable}
+import scala.collection.Iterable
 import scala.concurrent.Future
+import scala.util.Either
 
 /**
  *
@@ -18,7 +19,7 @@ package object todo {
 
     def allScheduled: Future[List[Task]]
 
-    def scheduleNew(txt: String, done: Boolean = false): Future[Either[Iterable[TaskEvent], TaskBusinessException]]
+    def scheduleNew(txt: String, done: Boolean = false): Future[ReturnVal[Long]]
 
     def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]]
 
@@ -27,11 +28,14 @@ package object todo {
     def cancel(taskId: Long): Future[Boolean]
 
     def clearCompletedTasks: Future[Iterable[TaskEvent]]
-
   }
 
-  case class ReturnVal[T] (v : T, events : Iterable[TaskEvent], e : Option[TaskBusinessException] = None)
-  
+  case class ReturnVal[T](v: Either[T, TaskBusinessException], events: Iterable[TaskEvent] = Nil) {
+    def value = v.left.get
+
+    def ex = v.right.get
+  }
+
   case class Task(id: Option[Long], var txt: String, var done: Boolean = false)
 
   sealed trait TaskEvent

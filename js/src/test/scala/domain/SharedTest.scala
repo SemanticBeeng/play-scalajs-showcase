@@ -10,6 +10,9 @@ import utest._
 
 object SharedTest extends TestSuite {
 
+  val taskOne: Long = 1L
+  val taskTwo: Long = 2L
+
   def tests = TestSuite {
 
     val taskPlan = new Plan
@@ -18,9 +21,9 @@ object SharedTest extends TestSuite {
     "A plan can have a task" - {
       
       taskPlan.loadFromHistory(Seq(
-        TaskScheduled(new Task(Some(1L), "Do this")),
-        TaskRedefined(1L, "Do this other thing"),
-        TaskCompleted(1L)))
+        TaskScheduled(new Task(Some(taskOne), "Do this")),
+        TaskRedefined(taskOne, "Do this other thing"),
+        TaskCompleted(taskOne)))
 
       assert(taskPlan.size == 1)
       assert(taskPlan.countLeftToComplete == 0)
@@ -33,10 +36,10 @@ object SharedTest extends TestSuite {
     "A plan can have two tasks" - {
 
       taskPlan.loadFromHistory(Seq(
-        TaskScheduled(new Task(Some(1L), "Do this")),
-        TaskRedefined(1L, "Do this other thing"),
-        TaskCompleted(1L),
-        TaskScheduled(new Task(Some(2L), "Do this honey"))))
+        TaskScheduled(new Task(Some(taskOne), "Do this")),
+        TaskRedefined(taskOne, "Do this other thing"),
+        TaskScheduled(new Task(Some(taskTwo), "Do this honey")),
+        TaskCompleted(taskOne)))
 
       assert(taskPlan.size == 2)
 
@@ -45,6 +48,4 @@ object SharedTest extends TestSuite {
       assert(taskPlan.countLeftToComplete == 1)
     }
   }
-
-
 }

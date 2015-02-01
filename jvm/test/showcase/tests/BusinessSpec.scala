@@ -148,26 +148,26 @@ class BusinessSpec extends Specification {
           assert(taskPlan.tasks.head.txt.equals("Do this other thing"))
           //taskPlan.tasks.head.txt should be_==("Do this other thing")
 
-        } andThen { case _ =>
+        }
+      } andThen { case _ =>
 
-          taskMgmt.complete(taskOne) andThen { case r =>
+        taskMgmt.complete(taskOne) andThen { case r =>
 
-            val history = r.get
-            taskPlan.loadFromHistory(history)
+          val history = r.get
+          taskPlan.loadFromHistory(history)
 
-            taskPlan.countLeftToComplete should be_==(0)
-          }
+          taskPlan.countLeftToComplete should be_==(0)
+        }
 
-        } andThen { case _ =>
+      } andThen { case _ =>
 
-          taskMgmt.clearCompletedTasks andThen { case r =>
+        taskMgmt.clearCompletedTasks andThen { case r =>
 
-            val events: Iterable[TaskEvent] = r.get
-            taskPlan.loadFromHistory(events)
+          val events: Iterable[TaskEvent] = r.get
+          taskPlan.loadFromHistory(events)
 
-            taskPlan.countLeftToComplete should be_==(0)
-            taskPlan.size should be_==(0)
-          }
+          taskPlan.countLeftToComplete should be_==(0)
+          taskPlan.size should be_==(0)
         }
       }
     }

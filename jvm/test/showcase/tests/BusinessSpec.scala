@@ -76,9 +76,7 @@ class BusinessSpec extends Specification {
      */
     "schedule one task and complete it remotely" in new PlanScope {
 
-      val scheduleNew = taskMgmt.scheduleNew("Do this")
-
-      scheduleNew.andThen { case r =>
+      taskMgmt.scheduleNew("Do this").andThen { case r =>
 
         val returnVal: ReturnVal[Long] = r.get
         returnVal.v.isLeft should beTrue
@@ -113,14 +111,6 @@ class BusinessSpec extends Specification {
           }
         }
       }
-
-      scheduleNew.onFailure {
-        case t => println("An error has occurred: " + t.getMessage)
-
-          failure("An error has occurred: " + t.getMessage)
-      }
-      // @todo Does this mask any errors?
-      success
     }
 
     /**
@@ -128,10 +118,9 @@ class BusinessSpec extends Specification {
      */
     "schedule two tasks and complete them separately" in new PlanScope {
 
-      val scheduleNew = taskMgmt.scheduleNew("Do this")
       var task1: Option[Task] = None
 
-      scheduleNew andThen { case r =>
+      taskMgmt.scheduleNew("Do this") andThen { case r =>
 
         val returnVal: ReturnVal[Long] = r.get
         returnVal.v.isLeft should beTrue
@@ -178,14 +167,6 @@ class BusinessSpec extends Specification {
           }
         }
       }
-
-      scheduleNew.onFailure {
-        case t => println("An error has occurred: " + t.getMessage)
-
-          failure("An error has occurred: " + t.getMessage)
-      }
-      // @todo Does this mask any errors?
-      success
     }
   }
 }

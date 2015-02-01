@@ -28,7 +28,7 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[Long]] = {
+  override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[TaskId]] = {
 
     TaskModel.store.create(txt, done).map { task =>
       null //Left(task) @todo
@@ -42,7 +42,7 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]] = {
+  override def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]] = {
     //@todo implement TaskModel.store.update(task)
     Future(List.empty[TaskEvent].toIterable)
   }
@@ -50,7 +50,7 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def complete(taskId: Long): Future[Iterable[TaskEvent]] = {
+  override def complete(taskId: TaskId): Future[Iterable[TaskEvent]] = {
     val task = null //@todo implement TaskModel.store.find(taskId)
     TaskModel.store.update(task)
     Future(List.empty[TaskEvent].toIterable)
@@ -59,8 +59,8 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def cancel(id: Long): Future[Boolean] = {
-    TaskModel.store.delete(id)
+  override def cancel(id: TaskId): Future[Boolean] = {
+    TaskModel.store.delete(id.get)
   }
 
   /**
@@ -121,7 +121,7 @@ object TodoController extends Controller {
     val fn = (txt: String, done: Boolean) =>
 
       // @todo: implement (remove CRUd API)
-      TodoServer.redefine(id, txt).map { r =>
+      TodoServer.redefine(TaskId(id), txt).map { r =>
         if (r != null)
           Ok(write(r))
         else
@@ -138,7 +138,7 @@ object TodoController extends Controller {
   def delete(id: Long) = Action.async { implicit request =>
 
     // @nick Delegate to implementation of shared API
-    TodoServer.cancel(id).map { r =>
+    TodoServer.cancel(TaskId(id)).map { r =>
       if (r)
         Ok(write(r))
       else

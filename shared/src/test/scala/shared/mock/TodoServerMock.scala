@@ -27,20 +27,20 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[Long]] = Future {
+  override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[TaskId]] = Future {
 
-    val task: Task = new Task(Option(nextId), txt, done)
+    val task: Task = Task(TaskId(nextId), txt, done)
     plan.record(TaskScheduled(task))
     val history = plan.uncommittedEvents
     plan.markCommitted
     nextId = nextId + 1
-    ReturnVal(Left(task.id.get), history)
+    ReturnVal(Left(task.id), history)
   }
 
   /**
    *
    */
-  override def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]] = Future {
+  override def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]] = Future {
 
     plan.record(TaskRedefined(taskId, txt))
     val history = plan.uncommittedEvents
@@ -51,7 +51,7 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def complete(taskId: Long): Future[Iterable[TaskEvent]] = Future {
+  override def complete(taskId: TaskId): Future[Iterable[TaskEvent]] = Future {
 
     plan.markCompleted(taskId)
     val history = plan.uncommittedEvents
@@ -73,7 +73,7 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def cancel(id: Long): Future[Boolean] = Future {
+  override def cancel(id: TaskId): Future[Boolean] = Future {
     true
   }
 

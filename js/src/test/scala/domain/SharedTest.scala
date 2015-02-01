@@ -10,8 +10,8 @@ import utest._
 
 object SharedTest extends TestSuite {
 
-  val taskOne: Long = 1L
-  val taskTwo: Long = 2L
+  val taskOne = TaskId(1L)
+  val taskTwo = TaskId(2L)
 
   def tests = TestSuite {
 
@@ -28,7 +28,7 @@ object SharedTest extends TestSuite {
       assert(taskPlan.size == 0)
 
       taskPlan.loadFromHistory(Seq(
-        TaskScheduled(new Task(Some(taskOne), "Do this")),
+        TaskScheduled(Task(taskOne, "Do this")),
         TaskRedefined(taskOne, "Do this other thing"),
         TaskCompleted(taskOne)))
 
@@ -45,9 +45,9 @@ object SharedTest extends TestSuite {
       assert(taskPlan.size == 0)
 
       taskPlan.loadFromHistory(Seq(
-        TaskScheduled(new Task(Some(taskOne), "Do this")),
+        TaskScheduled(Task(taskOne, "Do this")),
         TaskRedefined(taskOne, "Do this other thing"),
-        TaskScheduled(new Task(Some(taskTwo), "Do this honey")),
+        TaskScheduled(Task(taskTwo, "Do this honey")),
         TaskCompleted(taskOne)))
 
       assert(taskPlan.size == 2)

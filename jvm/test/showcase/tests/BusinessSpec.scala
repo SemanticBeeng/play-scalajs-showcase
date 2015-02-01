@@ -16,7 +16,7 @@ import shared.mock.TodoServerMock
 class BusinessSpec extends Specification {
 
   trait PlanScope extends Scope {
-    val taskOne: Long = 1L
+    val taskOne = TaskId(1L)
 
     val taskPlan = new Plan
     val taskMgmt: TaskManagement = new TodoServerMock()
@@ -30,7 +30,7 @@ class BusinessSpec extends Specification {
     "schedule one task, redefine and complete it" in new PlanScope {
 
       taskPlan.loadFromHistory(Seq(
-        TaskScheduled(new Task(Some(taskOne), "Do this")),
+        TaskScheduled(Task(taskOne, "Do this")),
         TaskRedefined(taskOne, "Do this other thing")))
 
       taskPlan.size should be_==(1)
@@ -56,7 +56,7 @@ class BusinessSpec extends Specification {
     "schedule one task and cancel it" in new PlanScope {
 
       taskPlan.loadFromHistory(Seq(
-        TaskScheduled(new Task(Some(taskOne), "Do this"))))
+        TaskScheduled(Task(taskOne, "Do this"))))
 
       taskPlan.size should be_==(1)
       taskPlan.countLeftToComplete should be_==(1)
@@ -78,7 +78,7 @@ class BusinessSpec extends Specification {
 
       taskMgmt.scheduleNew("Do this") andThen { case r =>
 
-        val returnVal: ReturnVal[Long] = r.get
+        val returnVal: ReturnVal[TaskId] = r.get
         returnVal.v.isLeft should beTrue
 
         taskPlan.loadFromHistory(returnVal.events)
@@ -133,7 +133,7 @@ class BusinessSpec extends Specification {
 
       } andThen { case _ =>
 
-        taskMgmt.redefine(task1.get.id.get, "Do this other thing") map { events =>
+        taskMgmt.redefine(task1.get.id, "Do this other thing") map { events =>
 
           taskPlan.loadFromHistory(events)
 

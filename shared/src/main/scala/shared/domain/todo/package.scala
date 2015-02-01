@@ -19,37 +19,74 @@ package object todo {
 
     def allScheduled: Future[List[Task]]
 
-    def scheduleNew(txt: String, done: Boolean = false): Future[ReturnVal[Long]]
+    def scheduleNew(txt: String, done: Boolean = false): Future[ReturnVal[TaskId]]
 
-    def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]]
+    def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]]
 
-    def complete(taskId: Long): Future[Iterable[TaskEvent]]
+    def complete(taskId: TaskId): Future[Iterable[TaskEvent]]
 
-    def cancel(taskId: Long): Future[Boolean]
+    def cancel(taskId: TaskId): Future[Boolean]
 
     def clearCompletedTasks: Future[Iterable[TaskEvent]]
   }
 
+  /**
+   * Helper class to wrap a {return value or business exception} and the history of applied events
+   */
   case class ReturnVal[T](v: Either[T, TaskBusinessException], events: Iterable[TaskEvent] = Nil) {
     def value = v.left.get
 
     def ex = v.right.get
   }
 
-  case class Task(id: Option[Long], var txt: String, var done: Boolean = false)
+  //  type TaskId = Option[Long]
+  final case class TaskId(id: Long) {
+    def get = id // make it look like an Option
+
+//    def apply(id:Long) = new TaskId(id)
+//
+//    def unapply(taskId: TaskId) = (taskId.get)
+  }
+
+  object TaskId {
+
+    import scala.language.implicitConversions
+
+    //def apply(id:Long) = new TaskId(id)
+
+    val nullId = Long.MinValue //@todo a hack that will not last..
+
+    implicit def fromOption(xo: Option[Long]): TaskId = if(!xo.isEmpty) TaskId(xo.get) else TaskId(nullId)
+
+    implicit def toOption(taskId: TaskId): Option[Long] = if(taskId.id != nullId) Some(taskId.id) else None
+
+  }
+
+  case class Task(id: TaskId, var txt: String, var done: Boolean = false)
+
+  object Task {
+
+    def apply(id: Long, txt: String, done: Boolean) : Task = Task(TaskId(id), txt, done)
+
+//    def tupled(id: Option[Long], txt: String, done: Boolean) = new Task(new TaskId(id.get), txt, done)
+//
+//    def unapply(task:Task) = Some(task.id.get, task.txt, task.done)
+  }
+
+
 
   sealed trait TaskEvent
 
   // Event protocol
   case class TaskScheduled(task: Task) extends TaskEvent
 
-  case class TaskRedefined(taskId: Long, txt: String) extends TaskEvent
+  case class TaskRedefined(taskId: TaskId, txt: String) extends TaskEvent
 
-  case class TaskCompleted(taskId: Long) extends TaskEvent
+  case class TaskCompleted(taskId: TaskId) extends TaskEvent
 
   case class CompleteCleared() extends TaskEvent
 
-  case class TaskCancelled(taskId: Long) extends TaskEvent
+  case class TaskCancelled(taskId: TaskId) extends TaskEvent
 
   /**
    * DDD Aggregate
@@ -71,7 +108,7 @@ package object todo {
     /**
      *
      */
-    def findById(taskId: Long): Option[Task] = tasks.find(t => t.id.get == taskId)
+    def findById(taskId: TaskId): Option[Task] = tasks.find(t => t.id == taskId)
 
     /**
      *
@@ -84,7 +121,7 @@ package object todo {
     /**
      *
      */
-    def markCompleted(taskId: Long) = {
+    def markCompleted(taskId: TaskId) = {
 
       record(TaskCompleted(taskId))
     }
@@ -99,7 +136,7 @@ package object todo {
       //@todo I could do this in applyEvent but did not want to mix calls to record in applyEvent
       tasks.foreach { task =>
         if (task.done) {
-          record(TaskCancelled(task.id.get))
+          record(TaskCancelled(task.id))
         }
       }
       sizeBefore - size
@@ -116,7 +153,7 @@ package object todo {
       case event: TaskRedefined =>
 
         tasks.foreach { task =>
-          if (task.id.get == event.taskId) {
+          if (task.id == event.taskId) {
             task.txt = event.txt
           }
         }
@@ -128,14 +165,14 @@ package object todo {
       case event: TaskCompleted =>
 
         tasks.foreach { task =>
-          if (task.id.get == event.taskId) {
+          if (task.id == event.taskId) {
             task.done = true
           }
         }
 
       case event: TaskCancelled =>
 
-        tasks = tasks.dropWhile(task => task.id.get == event.taskId)
+        tasks = tasks.dropWhile(task => task.id == event.taskId)
 
     }
   }

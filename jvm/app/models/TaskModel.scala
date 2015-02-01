@@ -1,9 +1,10 @@
 package models
 
-import scala.concurrent.Future
-import shared.domain.todo.Task
 import play.api.Play.current
+import shared.domain.todo.{TaskId, Task}
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
 object TaskModel {
@@ -39,7 +40,7 @@ trait TaskStore {
 
 object TaskMemStore extends TaskStore {
 
-  import scala.collection.mutable.{Map=>MutableMap}
+  import scala.collection.mutable.{Map => MutableMap}
 
   class InsufficientStorageException(m: String) extends Exception(m)
 
@@ -102,7 +103,11 @@ object TaskSlickStore extends TaskStore {
     def id   = column[Option[Long]]("ID", O.PrimaryKey, O.AutoInc)
     def txt  = column[String]("TXT")
     def done = column[Boolean]("DONE")
-    def * = (id, txt, done) <> (Task.tupled, Task.unapply)
+    def * = (id, txt, done) <> //(Task.tupled, Task.unapply)
+      (
+        (id, txt, done) => Task(id, txt, done),
+        (task:Task) => Some(task.id.get, task.txt, task.done)
+        )
   }
 
   val tasks = TableQuery[Tasks]
@@ -121,7 +126,7 @@ object TaskSlickStore extends TaskStore {
 
   override def update(task: Task): Future[Boolean] = Future{
     DB.withSession{ implicit session =>
-      val q = for { t <- tasks if t.id === task.id } yield (t.txt, t.done)
+      val q = for { t <- tasks if t.id === task.id.get } yield (t.txt, t.done)
       q.update(task.txt, task.done) == 1
     }
   }
@@ -142,8 +147,8 @@ object TaskSlickStore extends TaskStore {
 }
 
 object TaskAnormStore extends TaskStore{
-  import anorm._
   import anorm.SqlParser._
+  import anorm._
   import play.api.db.DB
 
   override def all(): Future[List[Task]] = Future{
@@ -166,7 +171,7 @@ object TaskAnormStore extends TaskStore{
     DB.withConnection { implicit c =>
       val sql = "UPDATE Tasks SET txt = {txt}, done = {done} WHERE id = {id}"
       SQL(sql).on('txt -> task.txt, 'done -> task.done
-        , 'id -> task.id).executeUpdate() == 1
+        , 'id -> task.id.get).executeUpdate() == 1
     }
   }
 

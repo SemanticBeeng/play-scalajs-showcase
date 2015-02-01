@@ -38,12 +38,12 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[Long]] = {
+      override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[TaskId]] = {
 
         val json = s"""{"txt": "${txt}", "done": ${done}}"""
         Ajax.postAsJson(Routes.Todos.create, json).map { r =>
 
-          read[ReturnVal[Long]](r.responseText)
+          read[ReturnVal[TaskId]](r.responseText)
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
@@ -54,11 +54,11 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def redefine(taskId: Long, txt: String): Future[Iterable[TaskEvent]] = {
+      override def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]] = {
 
         val json = s"""{"taskId": $taskId, "txt": "$txt"}"""
         //task.id.map{ id =>
-        Ajax.postAsJson(Routes.Todos.update(taskId), json).map { r =>
+        Ajax.postAsJson(Routes.Todos.update(taskId.get), json).map { r =>
 
           read[Iterable[TaskEvent]](r.responseText)
         }.recover {
@@ -71,9 +71,9 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def complete(taskId: Long): Future[Iterable[TaskEvent]] = {
+      override def complete(taskId: TaskId): Future[Iterable[TaskEvent]] = {
 
-        Ajax.postAsJson(Routes.Todos.complete(taskId)).map { r =>
+        Ajax.postAsJson(Routes.Todos.complete(taskId.get)).map { r =>
           //@todo implement
           read[Iterable[TaskEvent]](r.responseText)
         }.recover {
@@ -86,8 +86,8 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def cancel(id: Long): Future[Boolean] = {
-        Ajax.delete(Routes.Todos.delete(id)).map { r =>
+      override def cancel(id: TaskId): Future[Boolean] = {
+        Ajax.delete(Routes.Todos.delete(id.get)).map { r =>
 
           read[Boolean](r.responseText)
         }.recover {
@@ -168,7 +168,7 @@ import scala.scalajs.js.Dynamic.{global => g}
      */
     def update(task: Task) = {
       //@todo implement
-      TodoClient.redefine(task.id.get, task.txt).onComplete {
+      TodoClient.redefine(task.id, task.txt).onComplete {
 
         case Success(_) =>
           val pos = tasks().indexWhere(t => t.id == task.id)
@@ -182,16 +182,14 @@ import scala.scalajs.js.Dynamic.{global => g}
     /**
      *
      */
-    def delete(idOp: Option[Long]) = {
-      idOp.map { id =>
-        TodoClient.cancel(id).onComplete {
+    def delete(taskId: TaskId) = {
+      TodoClient.cancel(taskId).onComplete {
 
-          case Success(_) =>
-            tasks() = tasks().filter(_.id != idOp)
+        case Success(_) =>
+          tasks() = tasks().filter(_.id != taskId)
 
-          //case Success(false) => dom.alert("delete failed")
-          case Failure(e) => dom.alert("delete failed: " + e.getMessage)
-        }
+        //case Success(false) => dom.alert("delete failed")
+        case Failure(e) => dom.alert("delete failed: " + e.getMessage)
       }
     }
 

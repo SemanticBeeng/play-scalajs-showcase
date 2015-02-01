@@ -76,7 +76,7 @@ class BusinessSpec extends Specification {
      */
     "schedule one task and complete it remotely" in new PlanScope {
 
-      taskMgmt.scheduleNew("Do this").andThen { case r =>
+      taskMgmt.scheduleNew("Do this") andThen { case r =>
 
         val returnVal: ReturnVal[Long] = r.get
         returnVal.v.isLeft should beTrue
@@ -168,5 +168,9 @@ class BusinessSpec extends Specification {
         }
       }
     }
+
+    /**
+     *
+     */
   }
 }

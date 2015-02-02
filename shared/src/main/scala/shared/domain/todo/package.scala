@@ -43,9 +43,9 @@ package object todo {
   final case class TaskId(id: Long) {
     def get = id // make it look like an Option
 
-//    def apply(id:Long) = new TaskId(id)
-//
-//    def unapply(taskId: TaskId) = (taskId.get)
+    //    def apply(id:Long) = new TaskId(id)
+    //
+    //    def unapply(taskId: TaskId) = (taskId.get)
   }
 
   object TaskId {
@@ -56,23 +56,24 @@ package object todo {
 
     val nullId = Long.MinValue //@todo a hack that will not last..
 
-    implicit def fromOption(xo: Option[Long]): TaskId = if(!xo.isEmpty) TaskId(xo.get) else TaskId(nullId)
+    implicit def fromOption(xo: Option[Long]): TaskId = if (!xo.isEmpty) TaskId(xo.get) else TaskId(nullId)
 
-    implicit def toOption(taskId: TaskId): Option[Long] = if(taskId.id != nullId) Some(taskId.id) else None
+    implicit def toOption(taskId: TaskId): Option[Long] = if (taskId.id != nullId) Some(taskId.id) else None
 
   }
 
   case class Task(id: TaskId, var txt: String, var done: Boolean = false)
 
-  object Task {
+  object Task extends ((TaskId, String, Boolean) => Task) {
 
-    def apply(id: Long, txt: String, done: Boolean) : Task = Task(TaskId(id), txt, done)
-
-//    def tupled(id: Option[Long], txt: String, done: Boolean) = new Task(new TaskId(id.get), txt, done)
-//
-//    def unapply(task:Task) = Some(task.id.get, task.txt, task.done)
-  }
-
+    def apply(id: TaskId, txt: String, done: Boolean = false) = new Task(id, txt, done)
+////
+////    //def fromRow(id: Long, txt: String, done: Boolean): Task = Task(TaskId(id), txt, done)
+////
+////    def tupled(id: Option[Long], txt: String, done: Boolean): Task = new Task(new TaskId(id.get), txt, done)
+////
+////    def toTuple(task: Task) = Some(task.id.get, task.txt, task.done)
+    }
 
 
   sealed trait TaskEvent

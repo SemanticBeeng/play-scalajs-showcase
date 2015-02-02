@@ -1,7 +1,7 @@
 package models
 
 import play.api.Play.current
-import shared.domain.todo.{TaskId, Task}
+import shared.domain.todo.Task
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -103,11 +103,11 @@ object TaskSlickStore extends TaskStore {
     def id   = column[Option[Long]]("ID", O.PrimaryKey, O.AutoInc)
     def txt  = column[String]("TXT")
     def done = column[Boolean]("DONE")
-    def * = (id, txt, done) <> //(Task.tupled, Task.unapply)
-      (
-        (id, txt, done) => Task(id, txt, done),
-        (task:Task) => Some(task.id.get, task.txt, task.done)
-        )
+    def * = (id, txt, done) <> ((Task.apply _).tupled, Task.unapply )
+//      (
+//        Task.tupled,
+//        (task:Task) => Some(task.id.get, task.txt, task.done)
+//        )
   }
 
   val tasks = TableQuery[Tasks]

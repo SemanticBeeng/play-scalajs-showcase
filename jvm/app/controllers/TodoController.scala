@@ -66,7 +66,7 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def clearCompletedTasks: Future[Iterable[TaskEvent]] = {
+  override def clearCompletedTasks: Future[ReturnVal[Int]] = {
     //@todo implement
     null
     //    TaskModel.store.clearCompletedTasks.map { r =>

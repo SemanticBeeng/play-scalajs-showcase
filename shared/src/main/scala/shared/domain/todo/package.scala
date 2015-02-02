@@ -27,7 +27,7 @@ package object todo {
 
     def cancel(taskId: TaskId): Future[Boolean]
 
-    def clearCompletedTasks: Future[Iterable[TaskEvent]]
+    def clearCompletedTasks: Future[ReturnVal[Int]]
   }
 
   /**

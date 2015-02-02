@@ -100,10 +100,10 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def clearCompletedTasks: Future[Iterable[TaskEvent]] = {
+      override def clearCompletedTasks: Future[ReturnVal[Int]] = {
         Ajax.postAsForm(Routes.Todos.clear).map { r =>
 
-          read[Iterable[TaskEvent]](r.responseText)
+          read[ReturnVal[Int]](r.responseText)
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)

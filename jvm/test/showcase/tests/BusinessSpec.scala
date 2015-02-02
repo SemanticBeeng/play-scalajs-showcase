@@ -100,8 +100,10 @@ class BusinessSpec extends Specification {
         do_scheduleNew("Do this") andThen { case r =>
 
           val taskId = r.get.value
-          do_redefine(taskId, "Do this very well!") andThen { case _ =>
+          val newDescription: String = "Do this very well!"
+          do_redefine(taskId, newDescription) andThen { case _ =>
 
+            assert(taskPlan.findById(taskId).get.txt.equals(newDescription))
             do_complete(taskId)
           }
         }
@@ -111,8 +113,10 @@ class BusinessSpec extends Specification {
         do_scheduleNew("Do this thing too") andThen { case r =>
 
           val taskId = r.get.value
+          val newDescription: String = "Do this very well also!"
           do_redefine(taskId, "Do this very well also!") andThen { case _ =>
 
+            assert(taskPlan.findById(taskId).get.txt.equals(newDescription))
             do_complete(taskId)
           }
         }

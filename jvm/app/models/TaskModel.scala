@@ -112,12 +112,8 @@ object TaskSlickStore extends TaskStore {
     def id   = column[Option[Long]]("ID", O.PrimaryKey, O.AutoInc)
     def txt  = column[String]("TXT")
     def done = column[Boolean]("DONE")
+    //@todo: seee tupled
     def * = (id, txt, done) <> ((TaskStoreMapper.fromTuple _).tupled, TaskStoreMapper.toTuple )
-//    def * = (id, txt, done) <> (Task.tupled, Task.unapply )
-//      (
-//        Task.tupled,
-//        (task:Task) => Some(task.id.get, task.txt, task.done)
-//        )
   }
 
   val tasks = TableQuery[Tasks]

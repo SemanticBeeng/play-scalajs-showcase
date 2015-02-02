@@ -2,16 +2,19 @@ package showcase.tests
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import org.specs2.specification.Scope
 import org.specs2.runner.JUnitRunner
+import org.specs2.specification.Scope
 import shared.domain.todo._
 import shared.mock.TodoServerMock
+
+import scala.concurrent.Future
 
 //import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * @todo use "fixtures" to provide test data, "Outside" and "context composition"
  *       http://etorreborre.github.io/specs2/guide/org.specs2.guide.Structure.html
+ *       http://etorreborre.github.io/specs2/guide/org.specs2.guide.structure.GivenWhenThenPage.html
  *
  * @todo combine this with Play! specs
  *       https://groups.google.com/forum/#!topic/specs2-users/HkPJqH83I5Y
@@ -21,10 +24,83 @@ import shared.mock.TodoServerMock
 class BusinessSpec extends Specification {
 
   trait PlanScope extends Scope {
+
     val taskOne = TaskId(1L)
 
     val taskPlan = new Plan
     val taskMgmt: TaskManagement = new TodoServerMock()
+
+    var lastTaskUsed: Option[Task] = None
+  }
+
+  class PlanModelProxy extends PlanScope {
+
+    /**
+     *
+     */
+    def do_scheduleNew(txt: String): Future[ReturnVal[TaskId]] = {
+
+      val planSizeBefore = taskPlan.size
+      val countLeftToCompleteBefore = taskPlan.countLeftToComplete
+
+      val future: Future[ReturnVal[TaskId]] = taskMgmt.scheduleNew(txt)
+      future map { returnVal =>
+
+        returnVal.v.isLeft should beTrue
+
+        taskPlan.loadFromHistory(returnVal.events)
+
+        taskPlan.size should be_==(planSizeBefore + 1)
+        taskPlan.countLeftToComplete should be_==(countLeftToCompleteBefore + 1)
+        taskPlan.markCommitted
+
+        lastTaskUsed = taskPlan.findById(returnVal.value)
+        lastTaskUsed.get.txt shouldEqual txt
+
+      }
+      future
+    }
+
+    /**
+     *
+     */
+    def do_complete(taskId: TaskId): Future[Iterable[TaskEvent]] = {
+
+      val planSizeBefore = taskPlan.size
+      val countLeftToCompleteBefore = taskPlan.countLeftToComplete
+
+      val future: Future[Iterable[TaskEvent]] = taskMgmt.complete(taskId)
+
+      future andThen { case r =>
+
+        val events = r.get
+        taskPlan.loadFromHistory(events)
+
+        taskPlan.size should be_==(planSizeBefore)
+        taskPlan.countLeftToComplete should be_==(countLeftToCompleteBefore - 1)
+
+      }
+
+      future
+    }
+
+    /**
+     *
+     */
+    def do_clearCompleted: Future[Iterable[TaskEvent]] = {
+
+      val future: Future[Iterable[TaskEvent]] = taskMgmt.clearCompletedTasks
+      future andThen { case r =>
+
+        val events: Iterable[TaskEvent] = r.get
+        taskPlan.loadFromHistory(events)
+
+        taskPlan.countLeftToComplete should be_==(0)
+        taskPlan.size should be_==(0)
+      }
+
+      future
+    }
   }
 
   "I should be able to" should {
@@ -79,41 +155,13 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-    "schedule one task and complete it remotely" in new PlanScope {
+    "schedule one task and complete it remotely" in new PlanModelProxy {
 
-      taskMgmt.scheduleNew("Do this") andThen { case r =>
+      do_scheduleNew("Do this") andThen { case _ =>
 
-        val returnVal: ReturnVal[TaskId] = r.get
-        returnVal.v.isLeft should beTrue
+        do_complete(lastTaskUsed.get.id) andThen { case _ =>
 
-        taskPlan.loadFromHistory(returnVal.events)
-
-        taskPlan.size should be_==(1)
-        taskPlan.countLeftToComplete should be_==(1)
-        taskPlan.markCommitted
-
-        val task: Option[Task] = taskPlan.findById(returnVal.value)
-        task.get.txt shouldEqual "Do this"
-
-      } andThen { case _ =>
-
-        taskMgmt.complete(taskOne) andThen { case r =>
-
-          val events = r.get
-          taskPlan.loadFromHistory(events)
-
-          taskPlan.countLeftToComplete should be_==(0)
-
-        }
-      } andThen { case _ =>
-
-        taskMgmt.clearCompletedTasks andThen { case r =>
-
-          val events: Iterable[TaskEvent] = r.get
-          taskPlan.loadFromHistory(events)
-
-          taskPlan.countLeftToComplete should be_==(0)
-          taskPlan.size should be_==(0)
+          do_clearCompleted
         }
       }
     }
@@ -121,24 +169,12 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-    "schedule two tasks and complete them separately" in new PlanScope {
+    "schedule two tasks and complete them separately" in new PlanModelProxy {
 
-      var task1: Option[Task] = None
 
-      taskMgmt.scheduleNew("Do this") map { returnVal =>
+      do_scheduleNew("Do this") andThen { case _ =>
 
-        returnVal.v.isLeft should beTrue
-
-        taskPlan.loadFromHistory(returnVal.events)
-        taskPlan.size should be_==(1)
-        taskPlan.countLeftToComplete should be_==(1)
-
-        task1 = taskPlan.findById(returnVal.value)
-        task1.get.txt shouldEqual "Do this"
-
-      } andThen { case _ =>
-
-        taskMgmt.redefine(task1.get.id, "Do this other thing") map { events =>
+        taskMgmt.redefine(lastTaskUsed.get.id, "Do this other thing") map { events =>
 
           taskPlan.loadFromHistory(events)
 

@@ -5,7 +5,8 @@ import shared.mock.TodoServerMock
 import utest._
 
 /**
- *
+ * @todo Test async support in uTest
+ *       https://github.com/lihaoyi/utest/issues/33#issuecomment-65055113
  */
 
 object SharedTest extends TestSuite {

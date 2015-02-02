@@ -10,6 +10,11 @@ import shared.mock.TodoServerMock
 //import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
+ * @todo use "fixtures" to provide test data, "Outside" and "context composition"
+ *       http://etorreborre.github.io/specs2/guide/org.specs2.guide.Structure.html
+ *
+ * @todo combine this with Play! specs
+ *       https://groups.google.com/forum/#!topic/specs2-users/HkPJqH83I5Y
  *
  */
 @RunWith(classOf[JUnitRunner])
@@ -146,7 +151,7 @@ class BusinessSpec extends Specification {
         }
       } andThen { case _ =>
 
-        taskMgmt.complete(taskOne) map {  events =>
+        taskMgmt.complete(taskOne) map { events =>
 
           taskPlan.loadFromHistory(events)
 

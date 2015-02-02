@@ -39,20 +39,13 @@ package object todo {
     def ex = v.right.get
   }
 
-  //  type TaskId = Option[Long]
   final case class TaskId(id: Long) {
     def get = id // make it look like an Option
-
-    //    def apply(id:Long) = new TaskId(id)
-    //
-    //    def unapply(taskId: TaskId) = (taskId.get)
   }
 
   object TaskId {
 
     import scala.language.implicitConversions
-
-    //def apply(id:Long) = new TaskId(id)
 
     val nullId = Long.MinValue //@todo a hack that will not last..
 
@@ -62,19 +55,8 @@ package object todo {
 
   }
 
+  //
   case class Task(id: TaskId, var txt: String, var done: Boolean = false)
-
-//  object Task extends ((TaskId, String, Boolean) => Task) {
-//
-//    def apply(id: TaskId, txt: String, done: Boolean = false) = new Task(id, txt, done)
-//////
-//////    //def fromRow(id: Long, txt: String, done: Boolean): Task = Task(TaskId(id), txt, done)
-//////
-//////    def tupled(id: Option[Long], txt: String, done: Boolean): Task = new Task(new TaskId(id.get), txt, done)
-//////
-//////    def toTuple(task: Task) = Some(task.id.get, task.txt, task.done)
-//    }
-
 
   sealed trait TaskEvent
 

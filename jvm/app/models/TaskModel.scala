@@ -38,6 +38,15 @@ trait TaskStore {
   def clearCompletedTasks: Future[Int]
 }
 
+object TaskStoreMapper  {
+
+      //def fromRow(id: Long, txt: String, done: Boolean): Task = Task(TaskId(id), txt, done)
+
+    def fromTuple(id: Option[Long], txt: String, done: Boolean): Task = new Task(id, txt, done)
+
+    def toTuple(task: Task) : Option[(Option[Long], String, Boolean)] = Some(Some(task.id.get), task.txt, task.done)
+}
+
 object TaskMemStore extends TaskStore {
 
   import scala.collection.mutable.{Map => MutableMap}
@@ -103,7 +112,8 @@ object TaskSlickStore extends TaskStore {
     def id   = column[Option[Long]]("ID", O.PrimaryKey, O.AutoInc)
     def txt  = column[String]("TXT")
     def done = column[Boolean]("DONE")
-    def * = (id, txt, done) <> ((Task.apply _).tupled, Task.unapply )
+    def * = (id, txt, done) <> ((TaskStoreMapper.fromTuple _).tupled, TaskStoreMapper.toTuple )
+//    def * = (id, txt, done) <> (Task.tupled, Task.unapply )
 //      (
 //        Task.tupled,
 //        (task:Task) => Some(task.id.get, task.txt, task.done)

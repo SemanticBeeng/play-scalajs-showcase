@@ -14,8 +14,6 @@ trait PlanScope /*extends Scope */ {
 
   val taskPlan = new Plan
   val taskMgmt: TaskManagement = new TodoServerMock()
-
-  var lastTaskUsed: Option[Task] = None
 }
 
 /**
@@ -41,10 +39,11 @@ class PlanModelProxy extends PlanScope {
       taskPlan.loadFromHistory(returnVal.events)
 
       assert(taskPlan.size == planSizeBefore + 1)
-      assert(taskPlan.countLeftToComplete == (countLeftToCompleteBefore + 1))
+      assert(taskPlan.countLeftToComplete == (countLeftToCompleteBefore + 1),
+        "Unexpected countLeftToComplete " + taskPlan.countLeftToComplete + " vs " + (countLeftToCompleteBefore + 1))
       taskPlan.markCommitted
 
-      lastTaskUsed = taskPlan.findById(returnVal.value)
+      val lastTaskUsed = taskPlan.findById(returnVal.value)
       assert(lastTaskUsed.get.txt.equals(txt))
 
     }
@@ -89,8 +88,9 @@ class PlanModelProxy extends PlanScope {
       taskPlan.loadFromHistory(events)
 
       assert(taskPlan.size == planSizeBefore)
-//      assert(taskPlan.countLeftToComplete == (countLeftToCompleteBefore - 1),
-//        "Unexpected countLeftToComplete " + taskPlan.countLeftToComplete + " vs " + (countLeftToCompleteBefore - 1))
+      val clearedCount = 1
+      assert(taskPlan.countLeftToComplete == (countLeftToCompleteBefore - clearedCount),
+        "Unexpected countLeftToComplete " + taskPlan.countLeftToComplete + " vs " + (countLeftToCompleteBefore - clearedCount))
 
     }
 
@@ -103,7 +103,6 @@ class PlanModelProxy extends PlanScope {
   def do_clearCompletedTasks: Future[ReturnVal[Int]] = {
 
     val planSizeBefore = taskPlan.size
-    val countLeftToCompleteBefore = taskPlan.countLeftToComplete
 
     val future: Future[ReturnVal[Int]] = taskMgmt.clearCompletedTasks
     future andThen { case r =>
@@ -111,8 +110,10 @@ class PlanModelProxy extends PlanScope {
       val returnVal: ReturnVal[Int] = r.get
       taskPlan.loadFromHistory(returnVal.events)
 
-      //assert(taskPlan.size == planSizeBefore)
-      //assert(taskPlan.countLeftToComplete == (countLeftToCompleteBefore - returnVal.value))
+      println("Cleared " + returnVal.value + " tasks")
+      assert(taskPlan.size == (planSizeBefore - returnVal.value))
+      assert(taskPlan.countCompleted == 0)
+
     }
 
     future

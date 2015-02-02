@@ -1,12 +1,11 @@
 package showcase.tests
 
+import scala.concurrent.Future
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.Scope
 import shared.domain.todo._
-
-import scala.concurrent.Future
 
 
 
@@ -79,9 +78,10 @@ class BusinessSpec extends Specification {
      */
     "schedule one task and complete it remotely" in new PlanModelProxySpecScope {
 
-      do_scheduleNew("Do this") andThen { case _ =>
+      do_scheduleNew("Do this") andThen { case r =>
 
-        do_complete(lastTaskUsed.get.id)
+        val taskId = r.get.value
+        do_complete(taskId)
 
       } andThen { case _ =>
 
@@ -95,28 +95,25 @@ class BusinessSpec extends Specification {
     "schedule two tasks and complete them separately" in new PlanModelProxySpecScope {
 
 
-      var task1: Task = null
-      var task2: Task = null
-
       private val workWithTask1: Future[ReturnVal[TaskId]] =
 
-        do_scheduleNew("Do this") andThen { case _ =>
+        do_scheduleNew("Do this") andThen { case r =>
 
-          task1 = lastTaskUsed.get
-          do_redefine(task1.id, "Do this very well!") andThen { case _ =>
+          val taskId = r.get.value
+          do_redefine(taskId, "Do this very well!") andThen { case _ =>
 
-            do_complete(lastTaskUsed.get.id)
+            do_complete(taskId)
           }
         }
 
       private val workWithTask2: Future[ReturnVal[TaskId]] =
 
-        do_scheduleNew("Do this thing too") andThen { case _ =>
+        do_scheduleNew("Do this thing too") andThen { case r =>
 
-          task2 = lastTaskUsed.get
-          do_redefine(task2.id, "Do this very well also!") andThen { case _ =>
+          val taskId = r.get.value
+          do_redefine(taskId, "Do this very well also!") andThen { case _ =>
 
-            do_complete(lastTaskUsed.get.id)
+            do_complete(taskId)
           }
         }
 

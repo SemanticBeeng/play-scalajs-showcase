@@ -91,6 +91,11 @@ package object todo {
     /**
      *
      */
+    def countCompleted: Int = tasks.count(t => t.done)
+
+    /**
+     *
+     */
     def findById(taskId: TaskId): Option[Task] = tasks.find(t => t.id == taskId)
 
     /**

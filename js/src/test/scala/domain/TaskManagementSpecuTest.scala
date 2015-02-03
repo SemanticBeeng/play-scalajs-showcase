@@ -1,8 +1,9 @@
 package domain
 
 import shared.domain.TaskManagementModelProxy
-import shared.domain.todo._
 import utest._
+
+import scala.concurrent.Future
 
 /**
  * @todo Test async support in uTest
@@ -13,64 +14,69 @@ object TaskManagementSpecuTest extends TestSuite /*with TaskManagementScope*/ {
 
   implicit val ec = ExecutionContext.RunNow
 
-  def tests = TestSuite  {
+  def tests = TestSuite {
 
     /**
      * No need for explicit scoping like in Specs2 specs.
      * Each test gets a fresh copy of these variables
      */
-//    val scope.taskPlan = new Plan
-//    val taskMgmt: TaskManagement = new TodoServerMock()
-    val scope = new TaskManagementModelProxy()
+    val $ = new TaskManagementModelProxy()
 
-    "A plan can have a task" - {
-
-      assert(scope.taskPlan.isEmpty)
-
-      scope.taskPlan.loadFromHistory(Seq(
-        TaskScheduled(Task(scope.taskOne, "Do this")),
-        TaskRedefined(scope.taskOne, "Do this other thing"),
-        TaskCompleted(scope.taskOne)))
-
-      assert(scope.taskPlan.size == 1)
-      assert(scope.taskPlan.countLeftToComplete == 0)
-
-      scope.taskMgmt.clearCompletedTasks
-
-      assert(scope.taskPlan.countLeftToComplete == 0)
-    }
-
-    "A plan can have two tasks" - {
-
-      assert(scope.taskPlan.isEmpty)
-
-      scope.taskPlan.loadFromHistory(Seq(
-        TaskScheduled(Task(scope.taskOne, "Do this")),
-        TaskRedefined(scope.taskOne, "Do this other thing"),
-        TaskScheduled(Task(scope.taskTwo, "Do this honey")),
-        TaskCompleted(scope.taskOne)))
-
-      assert(scope.taskPlan.size == 2)
-
-      scope.taskMgmt.clearCompletedTasks
-
-      assert(scope.taskPlan.countLeftToComplete == 1)
-    }
+//    "A plan can have a task" - {
+//
+//      assert($.taskPlan.isEmpty)
+//
+//      $.taskPlan.loadFromHistory(Seq(
+//        TaskScheduled(Task($.taskOne, "Do this")),
+//        TaskRedefined($.taskOne, "Do this other thing"),
+//        TaskCompleted($.taskOne)))
+//
+//      assert($.taskPlan.size == 1)
+//      assert($.taskPlan.countLeftToComplete == 0)
+//
+//      $.taskMgmt.clearCompletedTasks
+//
+//      assert($.taskPlan.countLeftToComplete == 0)
+//    }
+//
+//    "A plan can have two tasks" - {
+//
+//      assert($.taskPlan.isEmpty)
+//
+//      $.taskPlan.loadFromHistory(Seq(
+//        TaskScheduled(Task($.taskOne, "Do this")),
+//        TaskRedefined($.taskOne, "Do this other thing"),
+//        TaskScheduled(Task($.taskTwo, "Do this honey")),
+//        TaskCompleted($.taskOne)))
+//
+//      assert($.taskPlan.size == 2)
+//
+//      $.taskMgmt.clearCompletedTasks
+//
+//      assert($.taskPlan.countLeftToComplete == 1)
+//    }
 
     "A plan can have two tasks" - {
 
-      assert(scope.taskPlan.isEmpty)
+      Future {
+        assert($.taskPlan.isEmpty)
 
-      scope.do_scheduleNew("Do this") andThen { case r =>
+        $.do_scheduleNew("Do this") andThen { case r =>
 
-        val taskId = r.get.value
-        scope.do_complete(taskId)
+          val taskId = r.get.value
+          $.do_complete(taskId)
 
-      } andThen { case _ =>
+        } andThen { case _ =>
 
-        scope.do_clearCompletedTasks
+          $.do_clearCompletedTasks
+        }
       }
     }
 
+    tests.runAsync().map {
+      results =>
+        assert(results.toSeq.head.value.isSuccess)
+        //assert(results.toSeq.last.value.isFailure)
+    }
   }
 }

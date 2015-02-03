@@ -1,11 +1,12 @@
 package showcase.tests
 
-import scala.concurrent.Future
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.Scope
 import shared.domain.todo._
+
+import scala.concurrent.Future
 
 
 
@@ -23,6 +24,7 @@ class PlanModelProxySpecScope extends PlanModelProxy with Scope
 @RunWith(classOf[JUnitRunner])
 class BusinessSpec extends Specification {
 
+  val c = scala.concurrent.ExecutionContext.Implicits.global
 
   "I should be able to" should {
 

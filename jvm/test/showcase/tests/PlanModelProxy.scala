@@ -3,7 +3,7 @@ package showcase.tests
 import shared.domain.todo._
 import shared.mock.TodoServerMock
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  *
@@ -21,12 +21,10 @@ trait PlanScope /*extends Scope */ {
  */
 class PlanModelProxy extends PlanScope {
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   /**
    *
    */
-  def do_scheduleNew(txt: String): Future[ReturnVal[TaskId]] = {
+  def do_scheduleNew(txt: String)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = {
 
     val planSizeBefore = taskPlan.size
     val countLeftToCompleteBefore = taskPlan.countLeftToComplete
@@ -53,7 +51,7 @@ class PlanModelProxy extends PlanScope {
   /**
    *
    */
-  def do_redefine(taskId: TaskId, newTxt: String): Future[Iterable[TaskEvent]] = {
+  def do_redefine(taskId: TaskId, newTxt: String)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = {
 
     val planSizeBefore = taskPlan.size
     val countLeftToCompleteBefore = taskPlan.countLeftToComplete
@@ -75,7 +73,7 @@ class PlanModelProxy extends PlanScope {
   /**
    *
    */
-  def do_complete(taskId: TaskId): Future[Iterable[TaskEvent]] = {
+  def do_complete(taskId: TaskId)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = {
 
     val planSizeBefore = taskPlan.size
     val countLeftToCompleteBefore = taskPlan.countLeftToComplete
@@ -100,7 +98,7 @@ class PlanModelProxy extends PlanScope {
   /**
    *
    */
-  def do_clearCompletedTasks: Future[ReturnVal[Int]] = {
+  def do_clearCompletedTasks()(implicit ec: ExecutionContext): Future[ReturnVal[Int]] = {
 
     val planSizeBefore = taskPlan.size
 

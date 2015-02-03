@@ -81,6 +81,11 @@ package object todo {
     /**
      *
      */
+    def isEmpty: Boolean = size == 0 && countCompleted == 0 && countLeftToComplete == 0
+
+    /**
+     *
+     */
     def size: Int = tasks.size
 
     /**

@@ -8,9 +8,10 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
  *
  */
-trait TaskManagementScope /*extends Scope */ {
+trait TaskManagementScope {
 
   val taskOne = TaskId(1L)
+  val taskTwo = TaskId(2L)
 
   val taskPlan = new Plan
   val taskMgmt: TaskManagement = new TodoServerMock()

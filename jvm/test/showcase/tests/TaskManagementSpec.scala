@@ -23,7 +23,7 @@ private class TaskManagementModelProxySpecScope extends TaskManagementModelProxy
 class TaskManagementSpec extends Specification {
 
   // Specs2 passes the execution context
-  //val c = scala.concurrent.ExecutionContext.Implicits.global
+  //val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   "I should be able to" should {
 

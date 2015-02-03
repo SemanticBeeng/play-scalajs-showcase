@@ -8,7 +8,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
  *
  */
-trait PlanScope /*extends Scope */ {
+trait TaskManagementScope /*extends Scope */ {
 
   val taskOne = TaskId(1L)
 
@@ -19,7 +19,7 @@ trait PlanScope /*extends Scope */ {
 /**
  *
  */
-class PlanModelProxy extends PlanScope {
+class TaskManagementModelProxy extends TaskManagementScope {
 
   /**
    *

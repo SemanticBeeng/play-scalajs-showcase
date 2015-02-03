@@ -4,14 +4,14 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.Scope
-import shared.domain.PlanModelProxy
+import shared.domain.TaskManagementModelProxy
 import shared.domain.todo._
 
 import scala.concurrent.Future
 
 
 
-class PlanModelProxySpecScope extends PlanModelProxy with Scope
+private class TaskManagementModelProxySpecScope extends TaskManagementModelProxy with Scope
 
 /**
  * @todo use "fixtures" to provide test data, "Outside" and "context composition"
@@ -23,7 +23,7 @@ class PlanModelProxySpecScope extends PlanModelProxy with Scope
  *
  */
 @RunWith(classOf[JUnitRunner])
-class BusinessSpec extends Specification {
+class TaskManagementSpec extends Specification {
 
   // Specs2 passes the execution context
   //val c = scala.concurrent.ExecutionContext.Implicits.global
@@ -33,7 +33,7 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-    "schedule one task, redefine and complete it" in new PlanModelProxySpecScope {
+    "schedule one task, redefine and complete it" in new TaskManagementModelProxySpecScope {
 
       taskPlan.loadFromHistory(Seq(
         TaskScheduled(Task(taskOne, "Do this")),
@@ -59,7 +59,7 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-    "schedule one task and cancel it" in new PlanModelProxySpecScope {
+    "schedule one task and cancel it" in new TaskManagementModelProxySpecScope {
 
       taskPlan.loadFromHistory(Seq(
         TaskScheduled(Task(taskOne, "Do this"))))
@@ -80,7 +80,7 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-    "schedule one task and complete it remotely" in new PlanModelProxySpecScope {
+    "schedule one task and complete it remotely" in new TaskManagementModelProxySpecScope {
 
       do_scheduleNew("Do this") andThen { case r =>
 
@@ -96,7 +96,7 @@ class BusinessSpec extends Specification {
     /**
      *
      */
-    "schedule two tasks and complete them separately" in new PlanModelProxySpecScope {
+    "schedule two tasks and complete them separately" in new TaskManagementModelProxySpecScope {
 
 
       private val workWithTask1: Future[ReturnVal[TaskId]] =

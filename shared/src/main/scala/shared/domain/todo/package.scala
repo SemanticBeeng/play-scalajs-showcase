@@ -25,7 +25,7 @@ package object todo {
 
     def complete(taskId: TaskId): Future[Iterable[TaskEvent]]
 
-    def cancel(taskId: TaskId): Future[Boolean]
+    def cancel(taskId: TaskId): Future[ReturnVal[Boolean]]
 
     def clearCompletedTasks: Future[ReturnVal[Int]]
   }
@@ -117,6 +117,16 @@ package object todo {
     def markCompleted(taskId: TaskId) = {
 
       record(TaskCompleted(taskId))
+    }
+
+    /**
+     *
+     */
+    def cancel(taskId: TaskId): Boolean = {
+      val sizeBefore = size
+      //@todo I could do this in applyEvent but did not want to mix calls to record in applyEvent
+      record(TaskCancelled(taskId))
+      sizeBefore == size + 1
     }
 
     /**

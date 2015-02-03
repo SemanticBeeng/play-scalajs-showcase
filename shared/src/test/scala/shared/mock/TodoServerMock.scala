@@ -73,8 +73,12 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def cancel(id: TaskId): Future[Boolean] = Future {
-    true
+  override def cancel(taskId: TaskId): Future[ReturnVal[Boolean]] = Future {
+
+    val cancelled: Boolean = plan.cancel(taskId)
+    val history = plan.uncommittedEvents
+    plan.markCommitted
+    ReturnVal(Left(cancelled), history)
   }
 
 }

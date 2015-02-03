@@ -8,6 +8,7 @@ object Routes {
     def create = base + "/create"
     def complete(id: Long) = base + s"/complete/$id" //@todo implement
     def update(id: Long) = base + s"/update/$id"
+    def cancel(id: Long) = base + s"/cancel/$id"
     def delete(id: Long) = base + s"/delete/$id"
     def clear = base + "/clear"
   }

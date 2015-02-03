@@ -86,10 +86,10 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def cancel(id: TaskId): Future[Boolean] = {
-        Ajax.delete(Routes.Todos.delete(id.get)).map { r =>
+      override def cancel(id: TaskId): Future[ReturnVal[Boolean]] = {
+        Ajax.delete(Routes.Todos.cancel(id.get)).map { r =>
 
-          read[Boolean](r.responseText)
+          read[ReturnVal[Boolean]](r.responseText)
         }.recover {
           // Trigger client side system exceptions
           case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)

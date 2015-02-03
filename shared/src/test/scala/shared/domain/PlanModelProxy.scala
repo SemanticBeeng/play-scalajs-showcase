@@ -1,4 +1,4 @@
-package showcase.tests
+package shared.domain
 
 import shared.domain.todo._
 import shared.mock.TodoServerMock

@@ -55,20 +55,20 @@ object TaskManagementSpecuTest extends TestSuite /*with TaskManagementScope*/ {
       assert($.taskPlan.countLeftToComplete == 1)
     }
 
-    "A plan can have two tasks" - {
-
-      assert($.taskPlan.isEmpty)
-
-      $.do_scheduleNew("Do this") andThen { case r =>
-
-        val taskId = r.get.value
-        $.do_complete(taskId)
-
-      } andThen { case _ =>
-
-        $.do_clearCompletedTasks
-      }
-    }
+//    "A plan can have two tasks" - {
+//
+//      assert($.taskPlan.isEmpty)
+//
+//      $.do_scheduleNew("Do this") andThen { case r =>
+//
+//        val taskId = r.get.value
+//        $.do_complete(taskId)
+//
+//      } andThen { case _ =>
+//
+//        $.do_clearCompletedTasks
+//      }
+//    }
 
   }
 }

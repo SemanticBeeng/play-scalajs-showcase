@@ -4,7 +4,6 @@ import shared.domain.TaskManagementModelProxy
 import utest._
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
 /**
 * @todo Test async support in uTest
@@ -79,9 +78,9 @@ object TaskManagementSpecuTest extends TestSuite /*with TaskManagementScope*/ {
     //    }
 
   }
-
-  tests.runAsync().onComplete {
-    case Failure(ex) => println(ex); throw ex
-    case Success(v) => assert(v == 1)
-  }
+//
+//  tests.runAsync().onComplete {
+//    case Failure(ex) => println(ex); throw ex
+//    case Success(v) => assert(v == 1)
+//  }
 }

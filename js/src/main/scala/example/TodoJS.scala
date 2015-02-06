@@ -1,7 +1,7 @@
 package example
 
 import org.scalajs.dom
-import org.scalajs.dom.extensions.AjaxException
+import org.scalajs.dom.ext.{Ajax, AjaxException}
 import rx._
 import shared.config.Routes
 import shared.domain.todo._
@@ -23,7 +23,6 @@ object TodoJS {
   object Model {
 
     import common.ExtAjax._
-    import org.scalajs.dom.extensions.Ajax
     import org.scalajs.jquery.{jQuery => $}
     import upickle._
 

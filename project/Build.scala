@@ -89,8 +89,8 @@ object Versions {
   val scalajsDom = "0.7.0"
   val jquery = "1.11.1"
   val playScalajsSourcemaps = "0.1.0"
-  val uPickle = "0.2.6-RC1"
-  val uTest = "0.2.5-RC1"
-  val scalaTags = "0.4.3-RC1"
-  val scalaRx = "0.2.7-RC1"
+  val uPickle = "0.2.6"
+  val uTest = "0.3.0"
+  val scalaTags = "0.4.5"
+  val scalaRx = "0.2.7"
 }

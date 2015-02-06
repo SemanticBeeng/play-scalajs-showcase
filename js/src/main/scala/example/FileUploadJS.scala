@@ -154,7 +154,7 @@ object FileUploadJS {
           }
         }
         //start upload
-        xhr.open("POST", $id("upload").asInstanceOf[dom.HTMLFormElement].action, true)
+        xhr.open("POST", $id("upload").asInstanceOf[dom.html.Form].action, true)
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
         xhr.setRequestHeader("X-FILENAME", file.name)
         xhr.send(file)

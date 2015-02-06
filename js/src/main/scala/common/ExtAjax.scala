@@ -1,7 +1,7 @@
 package common
 
 import org.scalajs.dom.XMLHttpRequest
-import org.scalajs.dom.extensions.Ajax
+import org.scalajs.dom.ext.Ajax
 
 class ExtAjax(ajax: Ajax.type) {
 

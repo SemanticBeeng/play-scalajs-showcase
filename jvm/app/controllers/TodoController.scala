@@ -59,8 +59,10 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def cancel(id: TaskId): Future[Boolean] = {
-    TaskModel.store.delete(id.get)
+  override def cancel(id: TaskId): Future[ReturnVal[Boolean]] = {
+    //@todo implement event history
+    //Future(ReturnVal(Left(TaskModel.store.delete(id.get))))
+    Future(ReturnVal(Left(true)))
   }
 
   /**
@@ -139,7 +141,7 @@ object TodoController extends Controller {
 
     // @nick Delegate to implementation of shared API
     TodoServer.cancel(TaskId(id)).map { r =>
-      if (r)
+      if (r.value)
         Ok(write(r))
       else
         BadRequest

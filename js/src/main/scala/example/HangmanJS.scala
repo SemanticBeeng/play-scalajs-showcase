@@ -2,6 +2,7 @@ package example
 
 
 import common.Framework._
+import org.scalajs.dom.ext.Ajax
 import shared.config.Routes
 import scalatags.JsDom._
 import all._
@@ -20,14 +21,12 @@ object HangmanJS {
 
   object Model {
 
-    import org.scalajs.dom.extensions.Ajax
-    import common.ExtAjax._
-
     val level = Var(0)
     val game = Var(Hangman(0, ""))
 
     def start(level: Int = Model.level()) = {
-      Ajax.postAsForm(Routes.Hangman.start(level)).map{ r =>
+      //@todo postAsForm
+      Ajax.post(Routes.Hangman.start(level)).map{ r =>
 //        game() = r.responseAs[Hangman]
         game() = read[Hangman](r.responseText)
       }
@@ -42,8 +41,8 @@ object HangmanJS {
     }
 
     def guess(g: Char)(callback: () => Unit) = {
-      Ajax.postAsForm(Routes.Hangman.guess(g)).map{ r =>
-        if(r.ok){
+      Ajax.post(Routes.Hangman.guess(g)).map{ r =>
+        if(r.status == 200){
           game() = read[Hangman](r.responseText)
           callback()
         }
@@ -51,8 +50,8 @@ object HangmanJS {
     }
 
     def giveup(callback: () => Unit) = {
-      Ajax.postAsForm(Routes.Hangman.giveup).map{ r =>
-        if(r.ok){
+      Ajax.post(Routes.Hangman.giveup).map{ r =>
+        if(r.status == 200){ //@todo implement check
           Model.level() = 0
           callback()
         }
@@ -62,7 +61,7 @@ object HangmanJS {
 
   var currentNode: dom.Node = null
 
-  def pageGuess: TypedTag[dom.HTMLElement] = div(`class`:="content"){
+  def pageGuess: TypedTag[dom.html.Div] = div(`class`:="content"){
     div(
       Rx {
         div(
@@ -88,7 +87,7 @@ object HangmanJS {
     )
   }
 
-  def pagePlay: TypedTag[dom.HTMLElement] = div{
+  def pagePlay: TypedTag[dom.html.Div] = div{
     val levels = Array(
       (10, "Easy game; you are allowed 10 misses."),
       (5, "Medium game; you are allowed 5 misses."),
@@ -120,7 +119,7 @@ object HangmanJS {
     )
   }
 
-  def pageResult: TypedTag[dom.HTMLElement] = div{
+  def pageResult: TypedTag[dom.html.Div] = div{
     val result = if(Model.game().won()) "You Win!" else "You Lose!"
     div(
       h2(result),
@@ -131,7 +130,7 @@ object HangmanJS {
     )
   }
 
-  def goto(page: TypedTag[dom.HTMLElement]) = {
+  def goto(page: TypedTag[dom.html.Div]) = {
     val lastChild = dom.document.getElementById("content").lastChild
     dom.document.getElementById("content")
       .replaceChild(div(style:="margin-left:20px;")(page).render, lastChild)

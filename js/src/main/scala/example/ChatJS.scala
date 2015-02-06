@@ -1,14 +1,15 @@
 package example
 
-import org.scalajs.dom.extensions.Ajax
-import shared.config.Routes
-import scala.scalajs.js
-import scala.scalajs.js.annotation.JSExport
-import js.Dynamic.{global => g}
+
 import org.scalajs.dom
-import scalatags.JsDom._
-import all._
+import org.scalajs.dom.ext.Ajax
 import org.scalajs.jquery.{jQuery => $}
+import shared.config.Routes
+
+import scala.scalajs.js
+import scala.scalajs.js.Dynamic.{global => g}
+import scala.scalajs.js.annotation.JSExport
+import scalatags.JsDom.all._
 
 @JSExport
 object ChatJS {
@@ -159,15 +160,13 @@ object ChatJS {
 
   class SSEChatClient(val username: String) extends ChatClient {
 
-    import common.ExtAjax._
-
     val sse = new EventSource(Routes.Chat.connectSSE(username))
     sse.onmessage = ChatClient.receive _
 
     def encode(value: String) = js.URIUtils.encodeURIComponent(value)
 
     override def send(msg: String): Unit = {
-      Ajax.postAsForm(Routes.Chat.talk, s"username=${encode(username)}&msg=${encode(msg)}")
+      Ajax.post(Routes.Chat.talk, s"username=${encode(username)}&msg=${encode(msg)}")
     }
 
     override def close() = sse.close()

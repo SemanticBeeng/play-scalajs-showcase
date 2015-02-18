@@ -4,6 +4,7 @@ import shared.domain.immutabledomain.AggregateRoot
 
 import scala.collection.Iterable
 import scala.concurrent.{ExecutionContext, Future}
+import scala.scalajs.js.annotation.JSExport
 import scala.util.Either
 
 /**
@@ -55,8 +56,13 @@ package object todo {
 
   }
 
-  //
-  //@JSExport
+  /**
+   * Domain object
+   *
+   * Note: In Idea must add the "SBT: org.scala-js:scalajs-library_2.11:0.6.0" dependency manually for the "sahred"
+   * module in oder for @JsExport to be recognised. Otheriwse the build works
+   */
+  @JSExport
   case class Task(id: TaskId, var txt: String, var done: Boolean = false)
 
   sealed trait TaskEvent

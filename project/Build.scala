@@ -36,12 +36,13 @@ object ApplicationBuild extends Build {
       scalaVersion := Versions.scala,
       libraryDependencies ++= Dependencies.shared.value,
 
-      /**
-       * No need for
-       * utest.jsrunner.Plugin.utestJsSettings
-       * see https://github.com/lihaoyi/utest/blob/master/jsPlugin/Plugin.scala
-       */
-      testFrameworks += new TestFramework("utest.runner.Framework")
+  //No need for the TestFramework in "shared"
+//      /**
+//       * No need for
+//       * utest.jsrunner.Plugin.utestJsSettings
+//       * see https://github.com/lihaoyi/utest/blob/master/jsPlugin/Plugin.scala
+//       */
+//      testFrameworks += new TestFramework("utest.runner.Framework")
     )
     .jsConfigure(_ enablePlugins ScalaJSPlay)
     .jsSettings(sourceMapsBase := baseDirectory.value / "..")
@@ -78,6 +79,12 @@ object ApplicationBuild extends Build {
     unmanagedSourceDirectories in Compile := Seq((scalaSource in Compile).value),
     libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.8.0"),
     libraryDependencies ++= Dependencies.js.value,
+    /**
+     * No need for
+     * utest.jsrunner.Plugin.utestJsSettings
+     * see https://github.com/lihaoyi/utest/blob/master/jsPlugin/Plugin.scala
+     */
+    testFrameworks += new TestFramework("utest.runner.Framework"),
     jsDependencies ++= Seq(
       RuntimeDOM,
       //"org.webjars" % "jquery" % Versions.jquery / "jquery.js"

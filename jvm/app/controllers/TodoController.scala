@@ -44,7 +44,7 @@ object TodoController extends Controller {
     val fn = (txt: String, done: Boolean) =>
 
       // @nick Delegate to implementation of shared API
-      TodoServer.scheduleNew(txt, done).map { r =>
+      TodoServer.scheduleNew(txt).map { r =>
         Ok(write(r))
       }
     executeRequest(fn)

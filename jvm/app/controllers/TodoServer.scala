@@ -22,9 +22,9 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def scheduleNew(txt: String, done: Boolean)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = {
+  override def scheduleNew(txt: String/*, done: Boolean*/)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = {
 
-    TaskModel.store.create(txt, done).map { task =>
+    TaskModel.store.create(txt, false).map { task =>
       null //ReturnVal(task.id) @todo implement
     }.recover {
       // @todo Reconsider this approach

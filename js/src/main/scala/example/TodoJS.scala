@@ -26,7 +26,7 @@ object TodoJS {
     import org.scalajs.jquery.{jQuery => $}
     import upickle._
 
-import scala.scalajs.js.Dynamic.{global => g}
+    import scala.scalajs.js.Dynamic.{global => g}
 
     object TodoClient extends TaskManagement {
 
@@ -37,9 +37,9 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def scheduleNew(txt: String, done: Boolean)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = {
+      override def scheduleNew(txt: String /*, done: Boolean*/)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = {
 
-        val json = s"""{"txt": "${txt}", "done": ${done}}"""
+        val json = s"""{"txt": "${txt}", "done": ${false}}"""
         Ajax.postAsJson(Routes.Todos.create, json).map { r =>
 
           read[ReturnVal[TaskId]](r.responseText)
@@ -149,7 +149,7 @@ import scala.scalajs.js.Dynamic.{global => g}
      */
     def create(txt: String, done: Boolean = false) = {
 
-      TodoClient.scheduleNew(txt, done).onComplete {
+      TodoClient.scheduleNew(txt).onComplete {
 
         case Success(result) =>
           if (result.v.isLeft) {

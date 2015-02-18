@@ -17,6 +17,7 @@ import playscalajs.ScalaJSPlay.autoImport.{sourceMapsBase, sourceMapsDirectories
 import playscalajs.PlayScalaJS.autoImport.{scalaJSProjects, scalaJSProd}
 
 //
+
 import com.typesafe.sbt.web.Import.pipelineStages
 import com.typesafe.sbt.packager.universal.UniversalKeys
 import com.typesafe.sbt.gzip.Import.gzip
@@ -36,13 +37,13 @@ object ApplicationBuild extends Build {
       scalaVersion := Versions.scala,
       libraryDependencies ++= Dependencies.shared.value
 
-  //No need for the TestFramework in "shared"
-//      /**
-//       * No need for
-//       * utest.jsrunner.Plugin.utestJsSettings
-//       * see https://github.com/lihaoyi/utest/blob/master/jsPlugin/Plugin.scala
-//       */
-//      testFrameworks += new TestFramework("utest.runner.Framework")
+      //No need for the TestFramework in "shared"
+      //      /**
+      //       * No need for
+      //       * utest.jsrunner.Plugin.utestJsSettings
+      //       * see https://github.com/lihaoyi/utest/blob/master/jsPlugin/Plugin.scala
+      //       */
+      //      testFrameworks += new TestFramework("utest.runner.Framework")
     )
     .jsConfigure(_ enablePlugins ScalaJSPlay)
     .jsSettings(sourceMapsBase := baseDirectory.value / "..")
@@ -61,8 +62,8 @@ object ApplicationBuild extends Build {
       "com.vmunier" %% "play-scalajs-scripts" % "0.1.0",
       "org.webjars" % "jquery" % "1.11.1"),
     libraryDependencies ++= Dependencies.jvm.value,
-      // For bindableChar
-    routesImport += "config.Routes._"/*,
+    // For bindableChar
+    routesImport += "config.Routes._" /*,
     EclipseKeys.skipParents in ThisBuild := false*/)
     .enablePlugins(play.PlayScala)
     .aggregate(showcase_client)
@@ -79,6 +80,7 @@ object ApplicationBuild extends Build {
     unmanagedSourceDirectories in Compile := Seq((scalaSource in Compile).value),
     libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.8.0"),
     libraryDependencies ++= Dependencies.js.value,
+
     /**
      * No need for
      * utest.jsrunner.Plugin.utestJsSettings
@@ -100,12 +102,19 @@ object ApplicationBuild extends Build {
 }
 
 object Dependencies {
+
+  /**
+   *
+   */
   val shared = Def.setting(Seq(
     "com.lihaoyi" %% "upickle" % Versions.uPickle,
     // @todo: uPickle must not be last...?? gives compile errors "upickle cannot read"
     "com.lihaoyi" %% "utest" % Versions.uTest % "test"
   ))
 
+  /**
+   *
+   */
   val jvm = Def.setting(Seq(
     filters,
     jdbc,
@@ -122,6 +131,9 @@ object Dependencies {
     "org.webjars" % "jquery" % Versions.jquery
   ))
 
+  /**
+   *
+   */
   val js = Def.setting(Seq(
     "org.scala-js" %%% "scalajs-dom" % Versions.scalajsDom,
     "be.doeraene" %%% "scalajs-jquery" % "0.7.0",

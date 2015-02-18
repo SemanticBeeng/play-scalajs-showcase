@@ -25,9 +25,9 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def scheduleNew(txt: String, done: Boolean)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = Future {
+  override def scheduleNew(txt: String/*, done: Boolean*/)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = Future {
 
-    val task: Task = Task(TaskId(nextId), txt, done)
+    val task: Task = Task(TaskId(nextId), txt, false)
     plan.record(TaskScheduled(task))
     val history = plan.uncommittedEvents
     plan.markCommitted

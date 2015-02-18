@@ -79,9 +79,8 @@ class TaskManagementModelProxy extends TaskManagementScope {
     val planSizeBefore = taskPlan.size
     val countLeftToCompleteBefore = taskPlan.countLeftToComplete
 
-    val future: Future[Iterable[TaskEvent]] = taskMgmt.complete(taskId)
-
-    future andThen { case r =>
+    val future: Future[Iterable[TaskEvent]] =
+      taskMgmt.complete(taskId) andThen { case r =>
 
       val events = r.get
       taskPlan.loadFromHistory(events)

@@ -1,6 +1,6 @@
 package domain
 
-import shared.domain.TaskManagementModelProxy
+import shared.app.taskmgmt.proxy.TaskManagementModelProxy
 import shared.domain.todo._
 import utest._
 

@@ -1,3 +1,5 @@
+import sbt._
+
 // Comment to get more information during initialization
 logLevel := Level.Warn
 
@@ -17,5 +19,6 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.0")
 
-addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.1.0")
+addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.2.1")
 
+addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.0")

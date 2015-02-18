@@ -1,38 +1,40 @@
 import sbt._
 import Keys._
+import sbt.Project.projectToRef
+
+// ScalaJSPlugin
+
+import org.scalajs.sbtplugin.ScalaJSPlugin
+
+//import org.scalajs.sbtplugin.ScalaJSPlugin.AutoImport._
+
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import playscalajs.PlayScalaJS
+
+// PlayScalajs plugins
+
+import playscalajs.ScalaJSPlay
+import playscalajs.ScalaJSPlay.autoImport.{sourceMapsBase, sourceMapsDirectories}
+import playscalajs.PlayScalaJS.autoImport.{scalaJSProjects, scalaJSProd}
+
+//
+import com.typesafe.sbt.web.Import.pipelineStages
 import com.typesafe.sbt.packager.universal.UniversalKeys
+import com.typesafe.sbt.gzip.Import.gzip
 import play.Play._
 import play.Play.autoImport._
 import PlayKeys._
 
 object ApplicationBuild extends Build {
 
-  override def rootProject = Some(jvm)
+  override def rootProject = Some(showcase_server)
 
-  val showcase = PlayScalaJS("jvm", "js", file("."), CrossType.Full).
-    jvmSettings(
-      libraryDependencies ++= Dependencies.jvm.value,
-      //scalaVersion := Versions.scala,
-      scalacOptions ++= Seq("-feature"),
-      // For bindableChar
-      routesImport += "config.Routes._" 
-    ).jsSettings(
-      libraryDependencies ++= Dependencies.js.value,
-      jsDependencies ++= Seq(
-        RuntimeDOM,
-        //"org.webjars" % "jquery" % Versions.jquery / "jquery.js"
-        "org.webjars" % "jquery" % "1.10.2" / "jquery.js"
-        //"com.lihaoyi" %% "upickle" % Versions.uPickle
-      )
-    ).settings(
-      version := Versions.app,
+  /**
+   *
+   */
+  lazy val showcase_shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
+    settings(
       scalaVersion := Versions.scala,
       libraryDependencies ++= Dependencies.shared.value,
-//      libraryDependencies ++= Seq(
-//        "com.lihaoyi" %%% "utest" % Versions.uTest % "test"
-//      ),
 
       /**
        * No need for
@@ -41,12 +43,53 @@ object ApplicationBuild extends Build {
        */
       testFrameworks += new TestFramework("utest.runner.Framework")
     )
+    .jsConfigure(_ enablePlugins ScalaJSPlay)
+    .jsSettings(sourceMapsBase := baseDirectory.value / "..")
 
-  lazy val jvm = showcase.jvm
-  lazy val js = showcase.js
+  lazy val showcase_shared_jvm = showcase_shared.jvm
+  lazy val showcase_shared_js = showcase_shared.js
+
+  /**
+   *
+   */
+  lazy val showcase_server = (project in file("jvm")).settings(
+    scalaVersion := Versions.scala,
+    scalaJSProjects := Seq(showcase_client),
+    pipelineStages := Seq(scalaJSProd, gzip),
+    libraryDependencies ++= Seq(
+      "com.vmunier" %% "play-scalajs-scripts" % "0.1.0",
+      "org.webjars" % "jquery" % "1.11.1"),
+    libraryDependencies ++= Dependencies.jvm.value,
+      // For bindableChar
+    routesImport += "config.Routes._"/*,
+    EclipseKeys.skipParents in ThisBuild := false*/)
+    .enablePlugins(play.PlayScala)
+    .aggregate(showcase_client)
+    .dependsOn(projectToRef(showcase_shared_jvm))
+
+  /**
+   *
+   */
+  lazy val showcase_client = (project in file("js")).settings(
+    scalaVersion := Versions.scala,
+    persistLauncher := true,
+    persistLauncher in Test := false,
+    sourceMapsDirectories += showcase_shared_js.base / "..",
+    unmanagedSourceDirectories in Compile := Seq((scalaSource in Compile).value),
+    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "0.8.0"),
+    libraryDependencies ++= Dependencies.js.value,
+    jsDependencies ++= Seq(
+      RuntimeDOM,
+      //"org.webjars" % "jquery" % Versions.jquery / "jquery.js"
+      "org.webjars" % "jquery" % "1.10.2" / "jquery.js"
+      //"com.lihaoyi" %% "upickle" % Versions.uPickle
+    )).
+    enablePlugins(ScalaJSPlugin, ScalaJSPlay).
+    dependsOn(showcase_shared_js)
+
 
   // Only if you use IntelliJ: the shared project makes IntelliJ happy without using symlinks
-  lazy val scala = Project("shared", file("shared"))
+  lazy val showcase_shared_dev = Project("shared", file("shared"))
 }
 
 object Dependencies {
@@ -78,7 +121,7 @@ object Dependencies {
     "com.lihaoyi" %%% "upickle" % Versions.uPickle,
     "com.lihaoyi" %%% "scalatags" % Versions.scalaTags,
     "com.lihaoyi" %%% "scalarx" % Versions.scalaRx
-    ,"com.lihaoyi" %%% "utest" % Versions.uTest % "test"
+    , "com.lihaoyi" %%% "utest" % Versions.uTest % "test"
   ))
 }
 

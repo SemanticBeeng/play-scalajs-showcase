@@ -5,7 +5,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.Scope
 import scala.concurrent.Future
-import shared.domain.TaskManagementModelProxy
+import shared.app.taskmgmt.proxy.TaskManagementModelProxy
 import shared.domain.todo._
 
 private class TaskManagementModelProxySpecScope extends TaskManagementModelProxy with Scope

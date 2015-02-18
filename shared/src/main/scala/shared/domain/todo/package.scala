@@ -3,7 +3,7 @@ package shared.domain
 import shared.domain.immutabledomain.AggregateRoot
 
 import scala.collection.Iterable
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Either
 
 /**
@@ -17,17 +17,17 @@ package object todo {
    */
   trait TaskManagement {
 
-    def allScheduled: Future[List[Task]]
+    def allScheduled()(implicit ec: ExecutionContext): Future[List[Task]]
 
-    def scheduleNew(txt: String, done: Boolean = false): Future[ReturnVal[TaskId]]
+    def scheduleNew(txt: String, done: Boolean = false)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]]
 
-    def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]]
+    def redefine(taskId: TaskId, txt: String)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]]
 
-    def complete(taskId: TaskId): Future[Iterable[TaskEvent]]
+    def complete(taskId: TaskId)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]]
 
-    def cancel(taskId: TaskId): Future[ReturnVal[Boolean]]
+    def cancel(taskId: TaskId)(implicit ec: ExecutionContext): Future[ReturnVal[Boolean]]
 
-    def clearCompletedTasks: Future[ReturnVal[Int]]
+    def clearCompletedTasks()(implicit ec: ExecutionContext): Future[ReturnVal[Int]]
   }
 
   /**
@@ -56,6 +56,7 @@ package object todo {
   }
 
   //
+  //@JSExport
   case class Task(id: TaskId, var txt: String, var done: Boolean = false)
 
   sealed trait TaskEvent

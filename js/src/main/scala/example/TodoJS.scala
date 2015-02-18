@@ -7,7 +7,7 @@ import shared.config.Routes
 import shared.domain.todo._
 
 import scala.collection.Iterable
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.annotation.JSExport
 import scala.util.{Failure, Success}
@@ -30,14 +30,14 @@ import scala.scalajs.js.Dynamic.{global => g}
 
     object TodoClient extends TaskManagement {
 
-      def allScheduled: Future[List[Task]] = {
+      def allScheduled()(implicit ec: ExecutionContext): Future[List[Task]] = {
         Future(Model.tasks())
       }
 
       /**
        *
        */
-      override def scheduleNew(txt: String, done: Boolean): Future[ReturnVal[TaskId]] = {
+      override def scheduleNew(txt: String, done: Boolean)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = {
 
         val json = s"""{"txt": "${txt}", "done": ${done}}"""
         Ajax.postAsJson(Routes.Todos.create, json).map { r =>
@@ -53,7 +53,7 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]] = {
+      override def redefine(taskId: TaskId, txt: String)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = {
 
         val json = s"""{"taskId": $taskId, "txt": "$txt"}"""
         //task.id.map{ id =>
@@ -70,7 +70,7 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def complete(taskId: TaskId): Future[Iterable[TaskEvent]] = {
+      override def complete(taskId: TaskId)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = {
 
         Ajax.postAsJson(Routes.Todos.complete(taskId.get)).map { r =>
           //@todo implement
@@ -85,7 +85,7 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def cancel(id: TaskId): Future[ReturnVal[Boolean]] = {
+      override def cancel(id: TaskId)(implicit ec: ExecutionContext): Future[ReturnVal[Boolean]] = {
         Ajax.delete(Routes.Todos.cancel(id.get)).map { r =>
 
           read[ReturnVal[Boolean]](r.responseText)
@@ -99,7 +99,7 @@ import scala.scalajs.js.Dynamic.{global => g}
       /**
        *
        */
-      override def clearCompletedTasks: Future[ReturnVal[Int]] = {
+      override def clearCompletedTasks()(implicit ec: ExecutionContext): Future[ReturnVal[Int]] = {
         Ajax.postAsForm(Routes.Todos.clear).map { r =>
 
           read[ReturnVal[Int]](r.responseText)

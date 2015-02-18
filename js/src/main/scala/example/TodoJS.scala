@@ -1,13 +1,12 @@
 package example
 
 import org.scalajs.dom
-import org.scalajs.dom.ext.{Ajax, AjaxException}
+import org.scalajs.dom.ext.Ajax
 import rx._
 import shared.config.Routes
 import shared.domain.todo._
 
-import scala.collection.Iterable
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.annotation.JSExport
 import scala.util.{Failure, Success}
@@ -22,94 +21,12 @@ object TodoJS {
 
   object Model {
 
-    import common.ExtAjax._
     import org.scalajs.jquery.{jQuery => $}
     import upickle._
 
-    import scala.scalajs.js.Dynamic.{global => g}
+import scala.scalajs.js.Dynamic.{global => g}
 
-    object TodoClient extends TaskManagement {
 
-      def allScheduled()(implicit ec: ExecutionContext): Future[List[Task]] = {
-        Future(Model.tasks())
-      }
-
-      /**
-       *
-       */
-      override def scheduleNew(txt: String /*, done: Boolean*/)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = {
-
-        val json = s"""{"txt": "${txt}", "done": ${false}}"""
-        Ajax.postAsJson(Routes.Todos.create, json).map { r =>
-
-          read[ReturnVal[TaskId]](r.responseText)
-        }.recover {
-          // Trigger client side system exceptions
-          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException(e1.toString)
-        }
-      }
-
-      /**
-       *
-       */
-      override def redefine(taskId: TaskId, txt: String)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = {
-
-        val json = s"""{"taskId": $taskId, "txt": "$txt"}"""
-        //task.id.map{ id =>
-        Ajax.postAsJson(Routes.Todos.update(taskId.get), json).map { r =>
-
-          read[Iterable[TaskEvent]](r.responseText)
-        }.recover {
-          // Trigger client side system exceptions
-          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException(e1.toString)
-        }
-      }
-
-      /**
-       *
-       */
-      override def complete(taskId: TaskId)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = {
-
-        Ajax.postAsJson(Routes.Todos.complete(taskId.get)).map { r =>
-          //@todo implement
-          read[Iterable[TaskEvent]](r.responseText)
-        }.recover {
-          // Trigger client side system exceptions
-          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException(e1.toString)
-        }
-      }
-
-      /**
-       *
-       */
-      override def cancel(id: TaskId)(implicit ec: ExecutionContext): Future[ReturnVal[Boolean]] = {
-        Ajax.delete(Routes.Todos.cancel(id.get)).map { r =>
-
-          read[ReturnVal[Boolean]](r.responseText)
-        }.recover {
-          // Trigger client side system exceptions
-          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException(e1.toString)
-        }
-      }
-
-      /**
-       *
-       */
-      override def clearCompletedTasks()(implicit ec: ExecutionContext): Future[ReturnVal[Int]] = {
-        Ajax.postAsForm(Routes.Todos.clear).map { r =>
-
-          read[ReturnVal[Int]](r.responseText)
-        }.recover {
-          // Trigger client side system exceptions
-          case e: AjaxException => throw new TodoSystemException(e.xhr.responseText)
-          case e1 => throw new TodoSystemException(e1.toString)
-        }
-      }
-    }
 
     val tasks = Var(List.empty[Task])
 

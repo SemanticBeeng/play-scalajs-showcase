@@ -3,9 +3,9 @@ package shared.app.taskmgmt.mock
 import shared.domain.todo._
 
 import scala.collection.Iterable
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-//import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  *
@@ -18,14 +18,14 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def allScheduled()(implicit ec: ExecutionContext): Future[List[Task]] = Future {
+  override def allScheduled(): Future[List[Task]] = Future {
     plan.tasks.toList
   }
 
   /**
    *
    */
-  override def scheduleNew(txt: String/*, done: Boolean*/)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = Future {
+  override def scheduleNew(txt: String/*, done: Boolean*/): Future[ReturnVal[TaskId]] = Future {
 
     val task: Task = Task(TaskId(nextId), txt, false)
     plan.record(TaskScheduled(task))
@@ -38,7 +38,7 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def redefine(taskId: TaskId, txt: String)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = Future {
+  override def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]] = Future {
 
     plan.record(TaskRedefined(taskId, txt))
     val history = plan.uncommittedEvents
@@ -49,7 +49,7 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def complete(taskId: TaskId)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = Future {
+  override def complete(taskId: TaskId): Future[Iterable[TaskEvent]] = Future {
 
     plan.markCompleted(taskId)
     val history = plan.uncommittedEvents
@@ -60,7 +60,7 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def clearCompletedTasks()(implicit ec: ExecutionContext): Future[ReturnVal[Int]] = Future {
+  override def clearCompletedTasks(): Future[ReturnVal[Int]] = Future {
 
     val completedTasks: Int = plan.clearCompletedTasks
     val history = plan.uncommittedEvents
@@ -71,7 +71,7 @@ class TodoServerMock() extends TaskManagement {
   /**
    *
    */
-  override def cancel(taskId: TaskId)(implicit ec: ExecutionContext): Future[ReturnVal[Boolean]] = Future {
+  override def cancel(taskId: TaskId): Future[ReturnVal[Boolean]] = Future {
 
     val cancelled: Boolean = plan.cancel(taskId)
     val history = plan.uncommittedEvents

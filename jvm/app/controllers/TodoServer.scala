@@ -5,8 +5,8 @@ import models.TaskModel
 import shared.domain.todo._
 
 import scala.collection.Iterable
-import scala.concurrent.{Future, ExecutionContext}
-
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
  *
  */
@@ -15,14 +15,14 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def allScheduled()(implicit ec: ExecutionContext): Future[List[Task]] = {
+  override def allScheduled(): Future[List[Task]] = {
     TaskModel.store.all
   }
 
   /**
    *
    */
-  override def scheduleNew(txt: String/*, done: Boolean*/)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]] = {
+  override def scheduleNew(txt: String/*, done: Boolean*/): Future[ReturnVal[TaskId]] = {
 
     TaskModel.store.create(txt, false).map { task =>
       null //ReturnVal(task.id) @todo implement
@@ -36,7 +36,7 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def redefine(taskId: TaskId, txt: String)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = {
+  override def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]] = {
     //@todo implement TaskModel.store.update(task)
     Future(List.empty[TaskEvent].toIterable)
   }
@@ -44,7 +44,7 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def complete(taskId: TaskId)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]] = {
+  override def complete(taskId: TaskId): Future[Iterable[TaskEvent]] = {
     val task = null //@todo implement TaskModel.store.find(taskId)
     TaskModel.store.update(task)
     Future(List.empty[TaskEvent].toIterable)
@@ -53,7 +53,7 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def cancel(id: TaskId)(implicit ec: ExecutionContext): Future[ReturnVal[Boolean]] = {
+  override def cancel(id: TaskId): Future[ReturnVal[Boolean]] = {
     //@todo implement event history
     //Future(ReturnVal(Left(TaskModel.store.delete(id.get))))
     Future(ReturnVal(Left(true)))
@@ -62,7 +62,7 @@ object TodoServer extends TaskManagement {
   /**
    *
    */
-  override def clearCompletedTasks()(implicit ec: ExecutionContext): Future[ReturnVal[Int]] = {
+  override def clearCompletedTasks(): Future[ReturnVal[Int]] = {
     //@todo implement
     null
     //    TaskModel.store.clearCompletedTasks.map { r =>

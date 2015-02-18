@@ -3,8 +3,8 @@ package shared.domain.todo
 import shared.domain.immutabledomain.AggregateRoot
 
 import scala.collection.Iterable
-import scala.concurrent.{ExecutionContext, Future}
-import scala.scalajs.js.annotation.{JSExportAll, JSExport}
+import scala.concurrent.Future
+import scala.scalajs.js.annotation.{JSExport, JSExportAll}
 import scala.util.Either
 
 /**
@@ -21,17 +21,17 @@ import scala.util.Either
 //@JSExportAll
 trait TaskManagement {
 
-  def allScheduled()(implicit ec: ExecutionContext): Future[List[Task]]
+  def allScheduled(): Future[List[Task]]
 
-  def scheduleNew(txt: String)(implicit ec: ExecutionContext): Future[ReturnVal[TaskId]]
+  def scheduleNew(txt: String): Future[ReturnVal[TaskId]]
 
-  def redefine(taskId: TaskId, txt: String)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]]
+  def redefine(taskId: TaskId, txt: String): Future[Iterable[TaskEvent]]
 
-  def complete(taskId: TaskId)(implicit ec: ExecutionContext): Future[Iterable[TaskEvent]]
+  def complete(taskId: TaskId): Future[Iterable[TaskEvent]]
 
-  def cancel(taskId: TaskId)(implicit ec: ExecutionContext): Future[ReturnVal[Boolean]]
+  def cancel(taskId: TaskId): Future[ReturnVal[Boolean]]
 
-  def clearCompletedTasks()(implicit ec: ExecutionContext): Future[ReturnVal[Int]]
+  def clearCompletedTasks(): Future[ReturnVal[Int]]
 }
 
 /**

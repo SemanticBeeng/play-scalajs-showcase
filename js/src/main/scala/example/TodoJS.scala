@@ -13,6 +13,9 @@ import scala.util.{Failure, Success}
 import scalatags.JsDom.all._
 import scalatags.JsDom.tags2.section
 
+import org.scalajs.jquery.{jQuery => $}
+import scala.scalajs.js.Dynamic.{global => g}
+import upickle._
 
 @JSExport
 object TodoJS {
@@ -20,12 +23,6 @@ object TodoJS {
   import common.Framework._
 
   object Model {
-
-    import org.scalajs.jquery.{jQuery => $}
-    import upickle._
-
-import scala.scalajs.js.Dynamic.{global => g}
-
 
 
     val tasks = Var(List.empty[Task])

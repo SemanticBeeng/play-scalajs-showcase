@@ -34,7 +34,7 @@ object ApplicationBuild extends Build {
   lazy val showcase_shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
     settings(
       scalaVersion := Versions.scala,
-      libraryDependencies ++= Dependencies.shared.value,
+      libraryDependencies ++= Dependencies.shared.value
 
   //No need for the TestFramework in "shared"
 //      /**

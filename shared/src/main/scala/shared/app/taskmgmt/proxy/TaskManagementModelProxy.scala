@@ -86,11 +86,10 @@ class TaskManagementModelProxy extends TaskManagementScope {
       val events = r.get
       taskPlan.loadFromHistory(events)
 
-      //@todo ?? assert(taskPlan.size == planSizeBefore)
+      assert(taskPlan.size == planSizeBefore)
       val clearedCount = 1
-        //@todo
-//      assert(taskPlan.countLeftToComplete == (countLeftToCompleteBefore - clearedCount),
-//        "Unexpected countLeftToComplete " + taskPlan.countLeftToComplete + " vs " + (countLeftToCompleteBefore - clearedCount))
+      assert(taskPlan.countLeftToComplete == (countLeftToCompleteBefore - clearedCount),
+        "Unexpected countLeftToComplete " + taskPlan.countLeftToComplete + " vs " + (countLeftToCompleteBefore - clearedCount))
 
     }
 
@@ -112,7 +111,7 @@ class TaskManagementModelProxy extends TaskManagementScope {
 
       println("Cleared " + returnVal.value + " tasks")
       assert(taskPlan.size == (planSizeBefore - returnVal.value))
-      //@todo assert(taskPlan.countCompleted == 0)
+      assert(taskPlan.countCompleted == 0)
 
     }
 

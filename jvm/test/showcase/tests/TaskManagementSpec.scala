@@ -129,7 +129,7 @@ class TaskManagementSpec extends Specification {
           do_clearCompletedTasks
         }
       }
-    }
+    }.pendingUntilFixed
 
     /**
      *

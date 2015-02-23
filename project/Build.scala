@@ -6,8 +6,6 @@ import sbt.Project.projectToRef
 
 import org.scalajs.sbtplugin.ScalaJSPlugin
 
-//import org.scalajs.sbtplugin.ScalaJSPlugin.AutoImport._
-
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 // PlayScalajs plugins
